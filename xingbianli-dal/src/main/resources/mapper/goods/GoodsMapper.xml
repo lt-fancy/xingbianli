@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sawallianc.goods.dao.GoodsDAO">
+    <resultMap id="baseMap" type="com.sawallianc.goods.module.GoodsDO">
+        <id column="id" property="id"/>
+        <result property="goodsName" column="goods_name"/>
+        <result property="goodsUri" column="goods_uri"/>
+        <result property="goodsOldPrice" column="goods_old_price"/>
+        <result property="goodsNowPrice" column="goods_now_price"/>
+        <result property="goodsDiscount" column="goods_discount"/>
+        <result property="goodsState" column="goods_state"/>
+        <result property="goodsCategory" column="goods_category"/>
+        <result property="goodsNumber" column="goods_number"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="gmtCreated" column="gmt_created"/>
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="baseSql">
+        id,uuid,bizman_id,replenishman_id,rack_name,rack_address,is_deleted,gmt_created,gmt_modified
+    </sql>
+
+    <select id="findGoodsByRackUUId" resultMap="baseMap">
+        select a.id, a.goods_name, a.goods_uri, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount, a.goods_state,b.goods_number from goods_info a,rack_goods_mapping b where b.rack_uuid=#{uuid} and a.id =b.goods_id
+        and b.is_deleted=0 and a.is_deleted=0
+    </select>
+</mapper>

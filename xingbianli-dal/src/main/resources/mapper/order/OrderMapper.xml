@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sawallianc.order.dao.OrderDAO">
+    <resultMap id="baseMap" type="com.sawallianc.order.module.OrderDO">
+        <id column="id" property="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="goodsId" column="goods_id"/>
+        <result property="rackUUID" column="rack_uuid"/>
+        <result property="goodsTotalPrice" column="goods_total_price"/>
+        <result property="goodsSettlePrice" column="goods_settle_price"/>
+        <result property="benefitPrice" column="benefit_price"/>
+        <result property="orderState" column="order_state"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="gmtCreated" column="gmt_created"/>
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="baseSql">
+        id,order_id,user_id,goods_id,rack_uuid,goods_total_price,goods_settle_price,benefit_price,order_state,is_deleted,gmt_created,gmt_modified
+    </sql>
+
+    <insert id="makeOrder" parameterType="com.sawallianc.order.module.OrderDO">
+        insert into order_info(order_id,user_id,goods_id,rack_uuid,goods_total_price,goods_settle_price,benefit_price,order_state,is_deleted,gmt_created)values
+        (#{orderId},#{userId},#{goodsId},#{rackUUID},#{goodsTotalPrice},#{goodsSettlePrice},#{benefitPrice},0,0,now())
+    </insert>
+
+</mapper>

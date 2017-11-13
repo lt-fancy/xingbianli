@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sawallianc.state.dao.StateDAO">
+    <resultMap id="baseMap" type="com.sawallianc.state.module.StateDO">
+        <id column="id" property="id"/>
+        <result property="ename" column="ename"/>
+        <result property="stateId" column="state_id"/>
+        <result property="stateName" column="state_name"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="gmtCreated" column="gmt_created"/>
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="baseSql">
+        id,ename,state_id,state_name,is_deleted,gmt_created,gmt_modified
+    </sql>
+
+    <select id="findStateByEnameAndStateId" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from state_info
+        where ename=#{ename}
+        and state_id=#{stateId}
+        and is_deleted=0
+    </select>
+
+    <select id="findChildrenStateByEname" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from state_info
+        where ename=#{ename}
+        and is_deleted=0
+    </select>
+</mapper>
