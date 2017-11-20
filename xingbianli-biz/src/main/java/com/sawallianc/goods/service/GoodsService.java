@@ -1,6 +1,9 @@
 package com.sawallianc.goods.service;
 
-import java.util.Map;
+import com.sawallianc.goods.bo.GoodsBO;
+import com.sawallianc.goods.bo.GoodsVO;
+
+import java.util.List;
 
 public interface GoodsService {
     /**
@@ -8,5 +11,12 @@ public interface GoodsService {
      * @param uuid
      * @return
      */
-    Map<String,Object> findGoodsByRackUUId(String uuid);
+    List<GoodsVO> findGoodsByRackUUId(String uuid);
+    /**
+     * 点选左侧分类的时候返回商品
+     * @param uuid
+     * @param type
+     * @return
+     */
+    List<GoodsBO> getGoodsByCategory(String uuid, String type);
 }

@@ -12,7 +12,8 @@ public class GoodsBO extends BaseBO{
     private String goodsDiscount;
     private String goodsCategory;
     private String goodsCategoryName;
-    private String goodsState;
+    private String isLimited;
+    private String isSpecialPrice;
     private String goodsStateName;
     private String goodsNumber;
 }

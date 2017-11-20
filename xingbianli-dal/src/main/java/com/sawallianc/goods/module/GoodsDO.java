@@ -11,7 +11,7 @@ public class GoodsDO extends BaseDO{
     private Double goodsNowPrice;
     private Double goodsDiscount;
     private Integer goodsCategory;
-    private String goodsState;
-
+    private Integer isSpecialPrice;
+    private Integer isLimited;
     private Integer goodsNumber;
 }

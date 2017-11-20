@@ -19,7 +19,6 @@ public final class OrderHelper {
         orderDO.setBenefitPrice(Double.parseDouble(orderVO.getBenefitPrice()));
         orderDO.setGoodsSettlePrice(Double.parseDouble(orderVO.getGoodsSettlePrice()));
         orderDO.setGoodsTotalPrice(Double.parseDouble(orderVO.getGoodsTotalPrice()));
-        orderDO.setGoodsId(orderVO.getGoodsIdCombine());
         orderDO.setRackUUID(orderVO.getRackUUID());
         return orderDO;
     }
