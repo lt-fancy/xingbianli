@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sawallianc.user.dao.ChargeRecordInfoDAO">
+    <resultMap id="baseMap" type="com.sawallianc.user.module.ChargeRecordInfo">
+        <id column="id" property="id"/>
+        <result property="phone" column="phone"/>
+        <result property="chargeAmount" column="charge_amount"/>
+        <result property="chargeMethod" column="charge_method"/>
+        <result property="bonusAmount" column="bonus_amount"/>
+        <result property="chargeDate" column="charge_time"/>
+    </resultMap>
+
+    <sql id="baseSql">
+        id,phone,charge_amount,charge_method,bonus_amount,charge_time
+    </sql>
+
+    <insert id="insertChargeRecordInfo" parameterType="com.sawallianc.user.module.ChargeRecordInfo">
+        insert into charge_record_info (phone,charge_amount,charge_method,bonus_amount,charge_time)
+        VALUES
+        (#{phone},#{chargeAmount},#{chargeMethod},#{bonusAmount},#{chargeDate})
+    </insert>
+</mapper>

@@ -18,5 +18,5 @@ public interface GoodsService {
      * @param type
      * @return
      */
-    List<GoodsBO> getGoodsByCategory(String uuid, String type);
+    GoodsVO getGoodsByCategory(String uuid, String type);
 }

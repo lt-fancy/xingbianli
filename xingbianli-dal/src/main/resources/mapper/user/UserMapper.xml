@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sawallianc.user.dao.UserDAO">
+    <resultMap id="baseMap" type="com.sawallianc.user.module.UserDO">
+        <id column="id" property="id"/>
+        <result property="phone" column="phone"/>
+        <result property="openid" column="openid"/>
+        <result property="unionid" column="unionid"/>
+        <result property="alipayId" column="alipayId"/>
+        <result property="balance" column="balance"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="gmtCreated" column="gmt_created"/>
+        <result property="gmtModified" column="gmt_modified"/>
+    </resultMap>
+
+    <sql id="baseSql">
+        id,phone,openid,unionid,alipayId,balance,is_deleted,gmt_created,gmt_modified
+    </sql>
+
+    <update id="charge">
+        update user_info set balance=balance+#{chargeAmount}+#{bonusAmount}
+        where phone=#{phone}
+    </update>
+
+    <select id="purchase" resultMap="baseMap">
+        update user_info set balance=balance-#{price}
+        where phone=#{phone}
+    </select>
+</mapper>

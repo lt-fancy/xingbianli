@@ -3,6 +3,7 @@ package com.sawallianc.goods.service.impl;
 import com.google.common.collect.Lists;
 import com.sawallianc.annotation.Cacheable;
 import com.sawallianc.common.Constant;
+import com.sawallianc.common.GoodsCategoryEnums;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.goods.bo.GoodsBO;
@@ -63,22 +64,35 @@ public class GoodsServiceImpl implements GoodsService{
     }
 
     @Override
-    public List<GoodsBO> getGoodsByCategory(String uuid, String type) {
+    @Cacheable
+    public GoodsVO getGoodsByCategory(String uuid, String type) {
         if(StringUtils.isBlank(uuid)){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter uuid is blank");
         }
         if(StringUtils.isBlank(type)){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter type is blank");
         }
-        switch (type){
-            case Constant.ALL_GOODS:
-                return goodsCacheService.getAllGoods(uuid);
-            case Constant.MY_OFTEN_BUY:
-                return goodsCacheService.getOftenBuy(uuid);
-            case Constant.TODAY_SPECIAL_PRICE:
-                return goodsCacheService.getTodaySpecialPrice(uuid);
+        GoodsVO vo = new GoodsVO();
+        String allGoods = GoodsCategoryEnums.ALL_GOODS.getType();
+        String special = GoodsCategoryEnums.TODAY_SPECIAL_PRICE.getType();
+        String often = GoodsCategoryEnums.MY_OFTEN_BUY.getType();
+        if(allGoods.equals(type)){
+            vo.setName(GoodsCategoryEnums.getName(allGoods));
+            vo.setGoods(goodsCacheService.getAllGoods(uuid));
+        } else if (special.equals(type)){
+            vo.setName(GoodsCategoryEnums.getName(special));
+            vo.setGoods(goodsCacheService.getTodaySpecialPrice(uuid));
+        } else if (often.equals(type)){
+            vo.setName(GoodsCategoryEnums.getName(often));
+            vo.setGoods(goodsCacheService.getOftenBuy(uuid));
+        } else {
+            if(!StringUtils.isNumeric(type)){
+                throw new BizRuntimeException(ResultCode.ERROR,"goods category type is not numeric");
+            }
+            vo.setName(stateService.findStateByEnameAndStateId(Constant.GOODS_CATEGORY_ENAME,Integer.parseInt(type)).getStateName());
+            vo.setGoods(goodsHelper.bosFromDos(goodsDAO.getGoodsByCategory(uuid,type)));
         }
-        return goodsHelper.bosFromDos(goodsDAO.getGoodsByCategory(uuid,type));
+        return vo;
     }
 
 }
