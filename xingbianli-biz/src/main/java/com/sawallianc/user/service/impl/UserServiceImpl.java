@@ -4,6 +4,8 @@ import com.sawallianc.annotation.ChargeLogAnnotation;
 import com.sawallianc.common.Constant;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
+import com.sawallianc.order.bo.OrderVO;
+import com.sawallianc.order.service.OrderService;
 import com.sawallianc.state.bo.StateBO;
 import com.sawallianc.state.service.StateService;
 import com.sawallianc.user.dao.ChargeRecordInfoDAO;
@@ -15,6 +17,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,8 +30,12 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private ChargeRecordInfoDAO chargeRecordInfoDAO;
 
+    @Autowired
+    private OrderService orderService;
+
     @Override
     @ChargeLogAnnotation
+    @Transactional(rollbackFor = Exception.class)
     public boolean charge(BalanceVO balanceVO) {
         if(null == balanceVO){
             throw new BizRuntimeException(ResultCode.ERROR,"balanceVO is null");
@@ -45,11 +52,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean purchase(BalanceVO balanceVO) {
         if(null == balanceVO){
             throw new BizRuntimeException(ResultCode.ERROR,"balanceVO is null");
         }
-        Double price = balanceVO.getPrice();
+        Double price = balanceVO.getSettlePrice();
         String phone = balanceVO.getPhone();
         if(null == price || price < 0){
             throw new BizRuntimeException(ResultCode.ERROR,"price is negative while purchasing");
@@ -57,7 +65,17 @@ public class UserServiceImpl implements UserService{
         if(StringUtils.isBlank(phone)){
             throw new BizRuntimeException(ResultCode.ERROR,"phone is blank while purchasing");
         }
-        return userDAO.purchase(price,phone) > 0;
+
+        boolean flag = userDAO.purchase(price,phone) > 0;
+        OrderVO orderVO = new OrderVO();
+        orderVO.setBenefitPrice(balanceVO.getBenefitPrice());
+        orderVO.setGoodsTotalPrice(balanceVO.getTotalPrice());
+        orderVO.setGoodsSettlePrice(price);
+        orderVO.setRackUUID(balanceVO.getRackUuid());
+        orderVO.setPhone(phone);
+        orderVO.setJson(balanceVO.getJson());
+        orderService.makeOrder(orderVO);
+        return flag;
     }
 
     @Override

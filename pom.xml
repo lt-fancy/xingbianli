@@ -10,7 +10,6 @@
     <module>xingbianli-dal</module>
     <module>xingbianli-deploy</module>
     <module>xingbianli-webapi</module>
-    <module>xingbianli-zuul</module>
   </modules>
   <packaging>pom</packaging>
 

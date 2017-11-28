@@ -24,8 +24,8 @@
         where phone=#{phone}
     </update>
 
-    <select id="purchase" resultMap="baseMap">
+    <update id="purchase">
         update user_info set balance=balance-#{price}
         where phone=#{phone}
-    </select>
+    </update>
 </mapper>

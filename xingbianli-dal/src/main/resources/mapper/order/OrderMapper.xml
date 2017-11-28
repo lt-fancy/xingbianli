@@ -6,7 +6,6 @@
     <resultMap id="baseMap" type="com.sawallianc.order.module.OrderDO">
         <id column="id" property="id"/>
         <result property="orderId" column="order_id"/>
-        <result property="userId" column="user_id"/>
         <result property="phone" column="phone_number"/>
         <result property="rackUUID" column="rack_uuid"/>
         <result property="goodsTotalPrice" column="goods_total_price"/>
@@ -19,12 +18,12 @@
     </resultMap>
 
     <sql id="baseSql">
-        id,order_id,user_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,order_state,is_deleted,gmt_created,gmt_modified
+        id,order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,order_state,is_deleted,gmt_created,gmt_modified
     </sql>
 
-    <insert id="makeOrder" parameterType="com.sawallianc.order.module.OrderDO">
-        insert into order_info(order_id,user_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,order_state,is_deleted,gmt_created)values
-        (#{orderId},#{userId},#{phone},#{rackUUID},#{goodsTotalPrice},#{goodsSettlePrice},#{benefitPrice},0,0,now())
+    <insert id="makeOrder" parameterType="com.sawallianc.order.module.OrderDO" useGeneratedKeys="true" keyProperty="id">
+        insert into order_info(order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,order_state,is_deleted,gmt_created)values
+        (#{orderId},#{phone},#{rackUUID},#{goodsTotalPrice},#{goodsSettlePrice},#{benefitPrice},0,0,now())
     </insert>
 
     <insert id="makeOrderDetail" parameterType="java.util.List">

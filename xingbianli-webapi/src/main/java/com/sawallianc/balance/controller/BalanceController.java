@@ -11,10 +11,7 @@ import com.sawallianc.user.vo.BalanceVO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -51,5 +48,18 @@ public class BalanceController {
         vo.setChargeMethod(Integer.parseInt(chargeMethod));
         vo.setChargeMethodName(Constant.ChargeMethod.getNameByCode(vo.getChargeMethod()));
         return Result.getSuccessResult(userService.charge(vo));
+    }
+    @PostMapping(value = "/purchase")
+    public Result purchase(@RequestBody BalanceVO vo){
+        if(null == vo){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"balanceVO is null while purchasing");
+        }
+        if(StringUtils.isBlank(vo.getPhone()) || StringUtils.isBlank(vo.getRackUuid())){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"phone or rackUuid is blank while purchasing");
+        }
+        if(null == vo.getBenefitPrice() || null == vo.getSettlePrice() || null == vo.getTotalPrice()){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"settlePrice or totalPrice or benefitPrice is null while purchasing");
+        }
+        return Result.getSuccessResult(userService.purchase(vo));
     }
 }
