@@ -17,8 +17,22 @@
         <result property="gmtModified" column="gmt_modified"/>
     </resultMap>
 
+    <resultMap id="detailMap" type="com.sawallianc.order.module.OrderDetailDO">
+        <id column="id" property="id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="goodsId" column="goods_id"/>
+        <result property="number" column="goods_number"/>
+        <result property="price" column="price"/>
+        <result property="phone" column="phone"/>
+        <result property="rackUuid" column="rack_uuid"/>
+    </resultMap>
+
     <sql id="baseSql">
         id,order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,order_state,is_deleted,gmt_created,gmt_modified
+    </sql>
+
+    <sql id="detailSql">
+        id,order_id,goods_id,goods_number,price,phone,rack_uuid
     </sql>
 
     <insert id="makeOrder" parameterType="com.sawallianc.order.module.OrderDO" useGeneratedKeys="true" keyProperty="id">
@@ -27,10 +41,26 @@
     </insert>
 
     <insert id="makeOrderDetail" parameterType="java.util.List">
-        insert into order_details(order_id, goods_id, goods_number, price)
+        insert into order_details(order_id, goods_id, goods_number, price,phone,rack_uuid)
         VALUES
         <foreach collection="list" item="item" separator=",">
-            (#{item.orderId},#{item.goodsId},#{item.number},#{item.price})
+            (#{item.orderId},#{item.goodsId},#{item.number},#{item.price},#{item.phone},#{item.rackUuid})
         </foreach>
     </insert>
+
+    <select id="queryOrderInfo" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from order_info
+        where phone_number=#{phone}
+        and rack_uuid=#{rack}
+        order by gmt_created desc
+    </select>
+
+    <select id="queryOrderDetailInfo" resultMap="detailMap">
+        select <include refid="detailSql"/>
+        from order_details
+        where phone=#{phone}
+        and rack_uuid=#{rack}
+        order by price desc
+    </select>
 </mapper>

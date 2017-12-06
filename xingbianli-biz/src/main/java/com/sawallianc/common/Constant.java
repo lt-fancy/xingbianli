@@ -43,4 +43,31 @@ public class Constant {
             return null;
         }
     }
+    public enum QueryUserType {
+        PHONE(1,"手机号"),
+        ALIPAY(2,"支付宝Id"),
+        WEIXIN(3,"微信openid");
+        private Integer code;
+        private String name;
+        QueryUserType(Integer code,String name) {
+            this.code = code;
+            this.name = name;
+        }
+
+        public Integer getCode() {
+            return code;
+        }
+
+        public static String getNameByCode(Integer code){
+            if(null == code){
+                return null;
+            }
+            for(QueryUserType type : QueryUserType.values()){
+                if(type.code == code){
+                    return type.name;
+                }
+            }
+            return null;
+        }
+    }
 }

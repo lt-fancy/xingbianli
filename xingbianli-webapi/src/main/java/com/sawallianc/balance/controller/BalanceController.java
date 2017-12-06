@@ -1,5 +1,6 @@
 package com.sawallianc.balance.controller;
 
+import com.google.common.collect.Lists;
 import com.sawallianc.common.Constant;
 import com.sawallianc.entity.Result;
 import com.sawallianc.entity.ResultCode;
@@ -61,5 +62,24 @@ public class BalanceController {
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"settlePrice or totalPrice or benefitPrice is null while purchasing");
         }
         return Result.getSuccessResult(userService.purchase(vo));
+    }
+
+    @GetMapping(value = "/getChargeAmountConfig/{ename}")
+    public Result getChargeAmountConfig(@PathVariable String ename){
+        if(StringUtils.isBlank(ename)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter ename is blank while querying chargeAmountConfig");
+        }
+        List<StateBO> list = stateService.findChildrenStateByEname(ename);
+        if(CollectionUtils.isEmpty(list)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"ename "+ename+" queried state list is empty");
+        }
+        List<BalanceVO> result = Lists.newArrayListWithCapacity(list.size());
+        for(StateBO bo : list){
+            BalanceVO vo = new BalanceVO();
+            vo.setChargeAmount(bo.getStateId());
+            vo.setBonusAmount(Integer.parseInt(bo.getStateName()));
+            result.add(vo);
+        }
+        return Result.getSuccessResult(result);
     }
 }

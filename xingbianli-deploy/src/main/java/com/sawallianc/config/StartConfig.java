@@ -4,10 +4,10 @@ import com.sawallianc.zuulfilter.PreRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 public class StartConfig {
 
-    @Bean
+//    @Bean
     public PreRequestFilter preRequestFilter(){
         return new PreRequestFilter();
     }

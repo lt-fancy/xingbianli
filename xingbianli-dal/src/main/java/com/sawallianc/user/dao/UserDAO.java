@@ -1,5 +1,6 @@
 package com.sawallianc.user.dao;
 
+import com.sawallianc.user.module.UserDO;
 import org.apache.ibatis.annotations.Param;
 
 public interface UserDAO {
@@ -19,4 +20,19 @@ public interface UserDAO {
      */
     int purchase(@Param("price") Double price,@Param("phone")String phone);
 
+    /**
+     * 根据特定条件查找用户
+     * 1、手机号，2、支付宝id，3、微信openid
+     * @param value
+     * @param type
+     * @return
+     */
+    UserDO queryUserByType(@Param("type")Integer type,@Param("value")String value);
+
+    /**
+     * 注册用户
+     * @param userDO
+     * @return
+     */
+    int addUser(UserDO userDO);
 }

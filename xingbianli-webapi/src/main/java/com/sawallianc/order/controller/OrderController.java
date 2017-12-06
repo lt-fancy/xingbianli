@@ -6,11 +6,9 @@ import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.order.bo.OrderVO;
 import com.sawallianc.order.service.OrderService;
 import com.sawallianc.springboot.advice.WebApiAdvice;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/order")
@@ -26,5 +24,16 @@ public class OrderController extends WebApiAdvice{
         }
         orderService.makeOrder(orderVO);
         return Result.getSuccessResult(0);
+    }
+
+    @GetMapping(value = "/queryOrderByPhone/{rack}/{phone}")
+    public Result queryOrderByPhone(@PathVariable String rack,@PathVariable String phone){
+        if(StringUtils.isBlank(phone)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter phone is blank while querying order info");
+        }
+        if(StringUtils.isBlank(rack)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter rack is blank while querying order info");
+        }
+        return Result.getSuccessResult(orderService.queryOrderInfo(phone,rack));
     }
 }

@@ -8,4 +8,6 @@ public class OrderDetailBO {
     private String goodsId;
     private String number;
     private String price;
+    private String phone;
+    private String rackUuid;
 }

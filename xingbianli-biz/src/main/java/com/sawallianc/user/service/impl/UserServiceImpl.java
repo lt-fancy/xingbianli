@@ -8,10 +8,12 @@ import com.sawallianc.order.bo.OrderVO;
 import com.sawallianc.order.service.OrderService;
 import com.sawallianc.state.bo.StateBO;
 import com.sawallianc.state.service.StateService;
+import com.sawallianc.user.bo.UserBO;
 import com.sawallianc.user.dao.ChargeRecordInfoDAO;
 import com.sawallianc.user.dao.UserDAO;
 import com.sawallianc.user.module.ChargeRecordInfo;
 import com.sawallianc.user.service.UserService;
+import com.sawallianc.user.util.UserHelper;
 import com.sawallianc.user.vo.BalanceVO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +61,13 @@ public class UserServiceImpl implements UserService{
         }
         Double price = balanceVO.getSettlePrice();
         String phone = balanceVO.getPhone();
+        UserBO user = this.queryUserInfoByPhone(phone);
+        if(null == user){
+            throw new BizRuntimeException(ResultCode.NOT_REGISTERED,"用户不存在");
+        }
+        if(price > Double.parseDouble(user.getBalance())){
+            throw new BizRuntimeException(ResultCode.USER_BALANCE_NOT_ENOUGH,"用户余额不足");
+        }
         if(null == price || price < 0){
             throw new BizRuntimeException(ResultCode.ERROR,"price is negative while purchasing");
         }
@@ -76,6 +85,32 @@ public class UserServiceImpl implements UserService{
         orderVO.setJson(balanceVO.getJson());
         orderService.makeOrder(orderVO);
         return flag;
+    }
+
+    @Override
+    public UserBO queryUserInfoByPhone(String phone) {
+        return UserHelper.boFromDo(userDAO.queryUserByType(1,phone));
+    }
+
+    @Override
+    public UserBO queryUserInfoByOpenid(String openid) {
+        return UserHelper.boFromDo(userDAO.queryUserByType(3,openid));
+    }
+
+    @Override
+    public UserBO queryUserInfoByAlipayId(String alipayId) {
+        return UserHelper.boFromDo(userDAO.queryUserByType(2,alipayId));
+    }
+
+    @Override
+    public boolean addUser(UserBO userBO) {
+        UserBO exists = this.queryUserInfoByPhone(userBO.getPhone());
+        //todo 暂时不知道微信openid和Alipayid会不会重复
+        if(null != exists){
+            //说明该手机号已注册
+            throw new BizRuntimeException(ResultCode.PHONE_ALREADY_REGISTERED,"phone already registered");
+        }
+        return userDAO.addUser(UserHelper.doFromBo(userBO)) > 0;
     }
 
     @Override
