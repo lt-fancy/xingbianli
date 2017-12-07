@@ -8,9 +8,9 @@ spring:
     converters:
       preferred-json-mapper: fastjson
   datasource:
-    url: jdbc:mysql://localhost:3306/bianli?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=UTC
+    url: jdbc:mysql://rm-bp13qqa6glmq9p9u2.mysql.rds.aliyuncs.com:3306/bianli?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=UTC
     username: root
-    password: a8594588
+    password: a8594588A
     driver-class-name: com.mysql.cj.jdbc.Driver
     filters: stat
     maxActive: 20
@@ -26,11 +26,7 @@ spring:
     poolPreparedStatements: true
     maxOpenPreparedStatements: 20
   redis:
-#    cluster:
-#      nodes:
-#      - 35.201.223.151:7000
-#      - 35.201.223.151:7001
-    host: localhost
+    host: r-bp17bf9e521894b4.redis.rds.aliyuncs.com
     port: 6379
     pool:
       max-active: 8
@@ -38,13 +34,13 @@ spring:
       max-idle: 8
       min-idle: 0
       timeout: 60000
-#    password: a8594588
+    password: a8594588A
 eureka:
   instance:
     instance-id: ${spring.cloud.client.ipAddress}:${server.port}
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://sawallianc:a8594588@localhost:4230/eureka/,http://sawallianc:a8594588@localhost:4231/eureka/
+      defaultZone: http://sawallianc:a8594588@localhost:4237/eureka/
 
 
