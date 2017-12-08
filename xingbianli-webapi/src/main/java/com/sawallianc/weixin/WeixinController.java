@@ -10,19 +10,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/weixin")
 public class WeixinController {
     @Autowired
-    private WeixinService service;
+    private WeixinService weixinService;
 
     @GetMapping("/getAccessToken")
     public Result getAccessToken(){
-        return Result.getSuccessResult(service.getAccessToken());
+        return Result.getSuccessResult(weixinService.getAccessToken());
     }
     @GetMapping("/getTicket")
     public Result getTicket(){
-        return Result.getSuccessResult(service.getTicket());
+        return Result.getSuccessResult(weixinService.getTicket());
     }
 
-//    @GetMapping("/getSignature")
-//    public Result getSignature(){
-//
-//    }
+    @GetMapping("/getSignature")
+    public Result getSignature(String url,String timestamp){
+        return Result.getSuccessResult(weixinService.getSignature(url));
+    }
 }

@@ -5,5 +5,5 @@ public interface WeixinService {
 
     String getTicket();
 
-    String getSignature();
+    String getSignature(String url,String timestamp);
 }
