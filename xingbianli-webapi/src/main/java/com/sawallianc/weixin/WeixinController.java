@@ -23,6 +23,6 @@ public class WeixinController {
 
     @GetMapping("/getSignature")
     public Result getSignature(String url,String timestamp){
-        return Result.getSuccessResult(weixinService.getSignature(url));
+        return Result.getSuccessResult(weixinService.getSignature(url,timestamp));
     }
 }
