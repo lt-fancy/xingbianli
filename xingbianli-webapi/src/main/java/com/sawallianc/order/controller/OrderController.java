@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping(value = "/order")
 public class OrderController extends WebApiAdvice{
@@ -22,7 +24,7 @@ public class OrderController extends WebApiAdvice{
         if(null == orderVO){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter orderVO is null");
         }
-        orderService.makeOrder(orderVO);
+        orderService.makeOrder(orderVO, UUID.randomUUID().toString());
         return Result.getSuccessResult(0);
     }
 

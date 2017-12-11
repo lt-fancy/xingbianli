@@ -2,11 +2,12 @@ package com.sawallianc.order.service;
 
 import com.sawallianc.order.bo.OrderBO;
 import com.sawallianc.order.bo.OrderVO;
+import com.sawallianc.order.module.OrderDO;
 
 import java.util.List;
 
 public interface OrderService {
-    void makeOrder(OrderVO orderVO);
+    OrderDO makeOrder(OrderVO orderVO,String orderId);
 
     List<OrderBO> queryOrderInfo(String phone,String rackUUid);
 }

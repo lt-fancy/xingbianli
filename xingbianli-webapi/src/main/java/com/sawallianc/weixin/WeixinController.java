@@ -27,6 +27,6 @@ public class WeixinController {
 
     @PostMapping("/getPrepayId")
     public Result getPrepayId(@RequestBody WeixinUnionOrderBO bo){
-        return Result.getSuccessResult()
+        return Result.getSuccessResult(weixinService.getWeixinPayConfig(bo));
     }
 }

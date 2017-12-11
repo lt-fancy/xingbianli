@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -83,7 +84,7 @@ public class UserServiceImpl implements UserService{
         orderVO.setRackUUID(balanceVO.getRackUuid());
         orderVO.setPhone(phone);
         orderVO.setJson(balanceVO.getJson());
-        orderService.makeOrder(orderVO);
+        orderService.makeOrder(orderVO, UUID.randomUUID().toString());
         return flag;
     }
 

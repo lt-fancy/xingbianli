@@ -28,7 +28,7 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void makeOrder(OrderVO orderVO) {
+    public OrderDO makeOrder(OrderVO orderVO,String orderId) {
         if(null == orderVO){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"orderVO is null while insert order");
         }
@@ -49,6 +49,7 @@ public class OrderServiceImpl implements OrderService{
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"order detail list is empty after parse json");
         }
         orderDAO.makeOrderDetail(OrderHelper.detailDOSFromBOS(details,orderDO));
+        return orderDO;
     }
 
     @Override
