@@ -1,10 +1,9 @@
 package com.sawallianc.weixin;
 
 import com.sawallianc.entity.Result;
+import com.sawallianc.weixin.bo.WeixinUnionOrderBO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/weixin")
@@ -24,5 +23,10 @@ public class WeixinController {
     @GetMapping("/getSignature")
     public Result getSignature(String url,String timestamp){
         return Result.getSuccessResult(weixinService.getSignature(url,timestamp));
+    }
+
+    @PostMapping("/getPrepayId")
+    public Result getPrepayId(@RequestBody WeixinUnionOrderBO bo){
+        return Result.getSuccessResult()
     }
 }

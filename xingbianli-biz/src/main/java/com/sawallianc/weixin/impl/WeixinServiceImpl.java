@@ -3,22 +3,18 @@ package com.sawallianc.weixin.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
+import com.sawallianc.redis.operations.RedisValueOperations;
 import com.sawallianc.thirdparty.WeixinFeignClient;
 import com.sawallianc.weixin.WeixinService;
-import com.sun.org.apache.regexp.internal.RE;
+import com.sawallianc.weixin.bo.WeixinUnionOrderBO;
+import com.sawallianc.weixin.vo.WeixinPayVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 
 @Service
 public class WeixinServiceImpl implements WeixinService {
@@ -27,37 +23,33 @@ public class WeixinServiceImpl implements WeixinService {
 
     private static final String JS_TICKET = "js_ticket";
 
-    private static final char[] HEX_DIGITS = {'0', '1', '2', '3', '4', '5',
-            '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
     @Resource
-    private RedisTemplate<String,String> redisTemplate;
+    private RedisValueOperations redisValueOperations;
 
     @Autowired
     private WeixinFeignClient weixinFeignClient;
 
     @Override
     public String getAccessToken() {
-        String token = redisTemplate.opsForValue().get(ACCESS_TOKEN);
+        String token = redisValueOperations.get(ACCESS_TOKEN);
         if(!StringUtils.isBlank(token)){
             return token;
         }
         String grant_type = "client_credential";
         String appid = "wx31a33d085b32ff73";
-        String secret = "1c44c3a294c77a433eeb6a3a440e2268";
+        String secret = "34408901cccb09f653157fa649f3e634";
         JSONObject json = (JSONObject) weixinFeignClient.getAccessToken(grant_type,appid,secret);
         if(json.isEmpty()){
             throw new BizRuntimeException(ResultCode.ERROR,"get access_token failed");
         }
         String value = json.getString("access_token");
-        redisTemplate.opsForValue().set(ACCESS_TOKEN,value);
-        redisTemplate.expire(ACCESS_TOKEN,7190,TimeUnit.SECONDS);
+        redisValueOperations.set(ACCESS_TOKEN,value,7190L);
         return value;
     }
 
     @Override
     public String getTicket() {
-        String ticket = redisTemplate.opsForValue().get(JS_TICKET);
+        String ticket = redisValueOperations.get(JS_TICKET);
         if(!StringUtils.isBlank(ticket)){
             return ticket;
         }
@@ -66,19 +58,24 @@ public class WeixinServiceImpl implements WeixinService {
             throw new BizRuntimeException(ResultCode.ERROR,"get js_ticket failed");
         }
         String value = json.getString("ticket");
-        redisTemplate.opsForValue().set(JS_TICKET,value);
-        redisTemplate.expire(JS_TICKET,7190,TimeUnit.SECONDS);
+        redisValueOperations.set(JS_TICKET,value,7190L);
         return value;
     }
 
     @Override
     public String getSignature(String url,String timestamp) {
         String ticket = this.getTicket();
-//        String timestamp = String.valueOf(System.currentTimeMillis());
         return SHA1(url,ticket,timestamp);
     }
+
+    @Override
+    public WeixinPayVO getWeixinPayConfig(WeixinUnionOrderBO bo) {
+        return null;
+    }
+
     private static String SHA1(String url,String ticket,String timestamp) {
         MessageDigest messageDigest = null;
+        String signature = null;
         try {
             String nonceStr = "fingertap";
             Map<String,String> map = new HashMap<String, String>();
@@ -99,21 +96,24 @@ public class WeixinServiceImpl implements WeixinService {
             String ready = sb.toString();
             ready = ready.substring(0,ready.length()-1);
             System.out.println("================加密前："+ready);
-            messageDigest = MessageDigest.getInstance("SHA1");
+            messageDigest = MessageDigest.getInstance("SHA-1");
+            messageDigest.reset();
+            messageDigest.update(ready.getBytes("UTF-8"));
+            signature = byteToHex(messageDigest.digest());
             messageDigest.update(ready.getBytes());
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        return getFormattedText(messageDigest.digest());
+        return signature;
     }
-    private static String getFormattedText(byte[] bytes) {
-        int len = bytes.length;
-        StringBuilder buf = new StringBuilder(len * 2);
-        // 把密文转换成十六进制的字符串形式
-        for (int j = 0; j < len; j++) {
-            buf.append(HEX_DIGITS[(bytes[j] >> 4) & 0x0f]);
-            buf.append(HEX_DIGITS[bytes[j] & 0x0f]);
+    private static String byteToHex(final byte[] hash) {
+        Formatter formatter = new Formatter();
+        for (byte b : hash)
+        {
+            formatter.format("%02x", b);
         }
-        return buf.toString();
+        String result = formatter.toString();
+        formatter.close();
+        return result;
     }
 }
