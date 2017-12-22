@@ -66,7 +66,7 @@ public class UserHelper {
             }
             double discount = Double.parseDouble(value.split(",")[0]);
             double chance = Double.parseDouble(value.split(",")[1]);
-            if(0.01 != discount){
+            if(0D != discount){
                 map.put(chance,discount);
                 chances.add(chance);
             } else {
@@ -75,7 +75,7 @@ public class UserHelper {
         }
         if(random <= bonusChance){
             DiscountVO vo = new DiscountVO();
-            vo.setDiscount(0.01);
+            vo.setDiscount(keep2Decimal(price-0.01));
             vo.setSettlePrice(0.01);
             return vo;
         }
@@ -86,20 +86,14 @@ public class UserHelper {
             double right = chances.get(i + 1);
             if(random <= left){
                 vo.setChance(left);
-                vo.setDiscount(map.get(left));
-                vo.setSettlePrice(UserHelper.keep2Decimal(price * vo.getDiscount()));
+                vo.setDiscount(keep2Decimal(price * vo.getDiscount()));
+                vo.setSettlePrice(keep2Decimal(price - vo.getDiscount()));
                 return vo;
             }
             if(random > left && random <= right){
                 vo.setChance(right);
-                vo.setDiscount(map.get(right));
-                vo.setSettlePrice(UserHelper.keep2Decimal(price * vo.getDiscount()));
-                return vo;
-            }
-            if(random > right){
-                vo.setDiscount(0D);
-                vo.setChance(0D);
-                vo.setSettlePrice(price);
+                vo.setDiscount(keep2Decimal(price * vo.getDiscount()));
+                vo.setSettlePrice(keep2Decimal(price - vo.getDiscount()));
                 return vo;
             }
         }
