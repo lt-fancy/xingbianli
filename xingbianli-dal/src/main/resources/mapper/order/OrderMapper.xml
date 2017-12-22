@@ -11,6 +11,7 @@
         <result property="goodsTotalPrice" column="goods_total_price"/>
         <result property="goodsSettlePrice" column="goods_settle_price"/>
         <result property="benefitPrice" column="benefit_price"/>
+        <result property="randomBenefitPrice" column="random_benefit_price"/>
         <result property="orderState" column="order_state"/>
         <result property="isDeleted" column="is_deleted"/>
         <result property="gmtCreated" column="gmt_created"/>
@@ -28,7 +29,7 @@
     </resultMap>
 
     <sql id="baseSql">
-        id,order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,order_state,is_deleted,gmt_created,gmt_modified
+        id,order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,random_benefit_price,order_state,is_deleted,gmt_created,gmt_modified
     </sql>
 
     <sql id="detailSql">
@@ -36,8 +37,8 @@
     </sql>
 
     <insert id="makeOrder" parameterType="com.sawallianc.order.module.OrderDO" useGeneratedKeys="true" keyProperty="id">
-        insert into order_info(order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,order_state,is_deleted,gmt_created)values
-        (#{orderId},#{phone},#{rackUUID},#{goodsTotalPrice},#{goodsSettlePrice},#{benefitPrice},0,0,now())
+        insert into order_info(order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,random_benefit_price,order_state,is_deleted,gmt_created)values
+        (#{orderId},#{phone},#{rackUUID},#{goodsTotalPrice},#{goodsSettlePrice},#{benefitPrice},#{randomBenefitPrice},0,0,now())
     </insert>
 
     <insert id="makeOrderDetail" parameterType="java.util.List">

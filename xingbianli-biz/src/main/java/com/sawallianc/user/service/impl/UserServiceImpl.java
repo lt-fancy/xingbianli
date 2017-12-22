@@ -6,6 +6,7 @@ import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.order.bo.OrderVO;
 import com.sawallianc.order.service.OrderService;
+import com.sawallianc.order.vo.DiscountVO;
 import com.sawallianc.state.bo.StateBO;
 import com.sawallianc.state.service.StateService;
 import com.sawallianc.user.bo.UserBO;
@@ -59,7 +60,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean purchase(BalanceVO balanceVO) {
+    public DiscountVO purchase(BalanceVO balanceVO) {
         if(null == balanceVO){
             throw new BizRuntimeException(ResultCode.ERROR,"balanceVO is null");
         }
@@ -79,17 +80,18 @@ public class UserServiceImpl implements UserService{
             throw new BizRuntimeException(ResultCode.ERROR,"phone is blank while purchasing");
         }
         List<StateBO> list = stateService.findChildrenStateByEname(Constant.RANDOM_DISCOUNT);
-        double discount = UserHelper.randomDiscount(list,price);
+        DiscountVO discountVO = UserHelper.randomDiscount(list,price);
         boolean flag = userDAO.purchase(price,phone) > 0;
         OrderVO orderVO = new OrderVO();
-        orderVO.setBenefitPrice(balanceVO.getTotalPrice()-discount);
+        orderVO.setGoodsSettlePrice(discountVO.getSettlePrice());
+        orderVO.setBenefitPrice(UserHelper.keep2Decimal(balanceVO.getTotalPrice()-orderVO.getGoodsSettlePrice()));
         orderVO.setGoodsTotalPrice(balanceVO.getTotalPrice());
-        orderVO.setGoodsSettlePrice(discount);
         orderVO.setRackUUID(balanceVO.getRackUuid());
         orderVO.setPhone(phone);
         orderVO.setJson(balanceVO.getJson());
-//        orderService.makeOrder(orderVO, UUID.randomUUID().toString());
-        return flag;
+        orderVO.setRandomBenefitPrice(discountVO.getDiscount());
+        orderService.makeOrder(orderVO, UUID.randomUUID().toString());
+        return discountVO;
     }
 
     @Override

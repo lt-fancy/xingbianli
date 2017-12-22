@@ -1,5 +1,6 @@
 package com.sawallianc.user.service;
 
+import com.sawallianc.order.vo.DiscountVO;
 import com.sawallianc.user.bo.UserBO;
 import com.sawallianc.user.module.ChargeRecordInfo;
 import com.sawallianc.user.vo.BalanceVO;
@@ -17,7 +18,7 @@ public interface UserService {
      * @param balanceVO
      * @return
      */
-    boolean purchase(BalanceVO balanceVO);
+    DiscountVO purchase(BalanceVO balanceVO);
 
     /**
      * 根据手机号查找用户信息

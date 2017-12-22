@@ -9,5 +9,6 @@ public class OrderVO {
     private Double goodsTotalPrice;
     private Double goodsSettlePrice;
     private Double benefitPrice;
+    private Double randomBenefitPrice;
     private String json;
 }

@@ -2,6 +2,7 @@ package com.sawallianc.user.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.sawallianc.order.vo.DiscountVO;
 import com.sawallianc.state.bo.StateBO;
 import com.sawallianc.user.bo.UserBO;
 import com.sawallianc.user.module.UserDO;
@@ -49,13 +50,15 @@ public class UserHelper {
         return bo;
     }
 
-    public static double randomDiscount(List<StateBO> list,double price){
+    public static DiscountVO randomDiscount(List<StateBO> list, double price){
         if(CollectionUtils.isEmpty(list)){
-            return price;
+            return null;
         }
         double random = Math.random();
+        System.out.println("随机小数："+random);
         Map<Double,Double> map = Maps.newHashMapWithExpectedSize(list.size());
         List<Double> chances = Lists.newArrayListWithCapacity(list.size());
+        double bonusChance = 0D;
         for(StateBO bo : list){
             String value = bo.getStateName();
             if(StringUtils.isBlank(value)){
@@ -63,23 +66,47 @@ public class UserHelper {
             }
             double discount = Double.parseDouble(value.split(",")[0]);
             double chance = Double.parseDouble(value.split(",")[1]);
-            if(0D != discount){
+            if(0.01 != discount){
                 map.put(chance,discount);
                 chances.add(chance);
+            } else {
+                bonusChance = chance;
             }
         }
+        if(random <= bonusChance){
+            DiscountVO vo = new DiscountVO();
+            vo.setDiscount(0.01);
+            vo.setSettlePrice(0.01);
+            return vo;
+        }
         Collections.sort(chances);
-        System.out.println("概率："+chances);
+        DiscountVO vo = new DiscountVO();
         for(int i =0;i<chances.size()-1;i++){
             double left = chances.get(i);
             double right = chances.get(i + 1);
-            if(random < left){
-                return new BigDecimal(price * map.get(left)).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+            if(random <= left){
+                vo.setChance(left);
+                vo.setDiscount(map.get(left));
+                vo.setSettlePrice(UserHelper.keep2Decimal(price * vo.getDiscount()));
+                return vo;
             }
-            if(random > left && random < right){
-                return new BigDecimal(price * map.get(right)).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
+            if(random > left && random <= right){
+                vo.setChance(right);
+                vo.setDiscount(map.get(right));
+                vo.setSettlePrice(UserHelper.keep2Decimal(price * vo.getDiscount()));
+                return vo;
+            }
+            if(random > right){
+                vo.setDiscount(0D);
+                vo.setChance(0D);
+                vo.setSettlePrice(price);
+                return vo;
             }
         }
-        return price;
+        return null;
+    }
+
+    public static double keep2Decimal(double source){
+        return new BigDecimal(source).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 }

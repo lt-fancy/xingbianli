@@ -11,6 +11,7 @@ public class OrderDO extends BaseDO{
     private Double goodsTotalPrice;
     private Double goodsSettlePrice;
     private Double benefitPrice;
+    private Double randomBenefitPrice;
     private Integer orderState;
 
 }

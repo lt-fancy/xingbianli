@@ -28,6 +28,7 @@ public final class OrderHelper {
         orderDO.setGoodsTotalPrice(orderVO.getGoodsTotalPrice());
         orderDO.setRackUUID(orderVO.getRackUUID());
         orderDO.setPhone(orderVO.getPhone());
+        orderDO.setRandomBenefitPrice(orderVO.getRandomBenefitPrice());
         return orderDO;
     }
 
