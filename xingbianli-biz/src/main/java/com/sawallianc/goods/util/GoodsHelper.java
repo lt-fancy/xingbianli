@@ -29,6 +29,18 @@ public class GoodsHelper {
         bo.setGoodsNowPrice(String.valueOf(goodsDO.getGoodsNowPrice()));
         bo.setGoodsOldPrice(String.valueOf(goodsDO.getGoodsOldPrice()));
         bo.setIsSpecialPrice(String.valueOf(goodsDO.getIsSpecialPrice()));
+        bo.setIsLimited(String.valueOf(goodsDO.getIsLimited()));
+        if(StringUtils.isNotBlank(goodsDO.getGoodsTag())){
+            StringBuffer sb = new StringBuffer();
+            String[] array = goodsDO.getGoodsTag().split(",");
+            if(null != array || array.length > 0){
+                for(String value : array){
+                    sb.append(stateService.findStateByEnameAndStateId(Constant.GOODS_TAG,Integer.parseInt(value)).getStateName()).append(",");
+                }
+            }
+            String goodsTag = sb.toString();
+            bo.setGoodsTag(goodsTag.substring(0,goodsTag.length()-1));
+        }
         bo.setGoodsName(goodsDO.getGoodsName());
         bo.setGoodsUri(goodsDO.getGoodsUri());
         return bo;

@@ -36,6 +36,9 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private StateService stateService;
+
     @Override
     @ChargeLogAnnotation
     @Transactional(rollbackFor = Exception.class)
@@ -75,16 +78,17 @@ public class UserServiceImpl implements UserService{
         if(StringUtils.isBlank(phone)){
             throw new BizRuntimeException(ResultCode.ERROR,"phone is blank while purchasing");
         }
-
+        List<StateBO> list = stateService.findChildrenStateByEname(Constant.RANDOM_DISCOUNT);
+        double discount = UserHelper.randomDiscount(list,price);
         boolean flag = userDAO.purchase(price,phone) > 0;
         OrderVO orderVO = new OrderVO();
-        orderVO.setBenefitPrice(balanceVO.getBenefitPrice());
+        orderVO.setBenefitPrice(balanceVO.getTotalPrice()-discount);
         orderVO.setGoodsTotalPrice(balanceVO.getTotalPrice());
-        orderVO.setGoodsSettlePrice(price);
+        orderVO.setGoodsSettlePrice(discount);
         orderVO.setRackUUID(balanceVO.getRackUuid());
         orderVO.setPhone(phone);
         orderVO.setJson(balanceVO.getJson());
-        orderService.makeOrder(orderVO, UUID.randomUUID().toString());
+//        orderService.makeOrder(orderVO, UUID.randomUUID().toString());
         return flag;
     }
 

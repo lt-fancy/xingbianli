@@ -19,11 +19,23 @@ public class RackController extends WebApiAdvice{
     @Autowired
     private RackService rackService;
 
+    @GetMapping(value = "/all")
+    public Result findAllRack(){
+        return Result.getSuccessResult(rackService.findAllRack());
+    }
+
+    @GetMapping(value = "/allAvailable")
+    public Result findAllAvaliableRack(){
+        return Result.getSuccessResult(rackService.findAllAvaliableRack());
+    }
+
+    @GetMapping(value = "/allDisable")
+    public Result findAllDisableRack(){
+        return Result.getSuccessResult(rackService.findAllDisableRack());
+    }
+
     @GetMapping(value = "/{uuid}")
-    public Result getGoodsByRackUUID(@PathVariable String uuid){
-        if(StringUtils.isBlank(uuid)){
-            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter uuid is blank");
-        }
-        return Result.getSuccessResult(rackService.findGoodsByRackUUId(uuid));
+    public Result getRackByUUID(@PathVariable String uuid){
+        return Result.getSuccessResult(rackService.getRackByUUID(uuid));
     }
 }

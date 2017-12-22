@@ -64,14 +64,11 @@ public class BalanceController {
         return Result.getSuccessResult(userService.purchase(vo));
     }
 
-    @GetMapping(value = "/getChargeAmountConfig/{ename}")
-    public Result getChargeAmountConfig(@PathVariable String ename){
-        if(StringUtils.isBlank(ename)){
-            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter ename is blank while querying chargeAmountConfig");
-        }
-        List<StateBO> list = stateService.findChildrenStateByEname(ename);
+    @GetMapping(value = "/getChargeAmountConfig")
+    public Result getChargeAmountConfig(){
+        List<StateBO> list = stateService.findChildrenStateByEname("charge_amount");
         if(CollectionUtils.isEmpty(list)){
-            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"ename "+ename+" queried state list is empty");
+            throw new BizRuntimeException(ResultCode.ERROR,"ename charge_amount queried state list is empty");
         }
         List<BalanceVO> result = Lists.newArrayListWithCapacity(list.size());
         for(StateBO bo : list){

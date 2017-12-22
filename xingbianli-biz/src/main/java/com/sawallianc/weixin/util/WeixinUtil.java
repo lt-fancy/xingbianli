@@ -76,42 +76,60 @@ public class WeixinUtil {
         sb.append("<xml>");
         sb.append("<appid><![CDATA[");
         sb.append(bo.getAppid());
-        sb.append("]]</appid>");
+        sb.append("]]></appid>");
         sb.append("<body><![CDATA[");
         sb.append(bo.getBody());
-        sb.append("]]</body>");
+        sb.append("]]></body>");
         sb.append("<mch_id><![CDATA[");
         sb.append(bo.getMch_id());
-        sb.append("]]</mch_id>");
+        sb.append("]]></mch_id>");
         sb.append("<nonce_str><![CDATA[");
         sb.append(bo.getNonce_str());
-        sb.append("]]</nonce_str>");
+        sb.append("]]></nonce_str>");
         sb.append("<notify_url><![CDATA[");
         sb.append(bo.getNotify_url());
-        sb.append("]]</notify_url>");
+        sb.append("]]></notify_url>");
         sb.append("<openid><![CDATA[");
         sb.append(bo.getOpenid());
-        sb.append("]]</openid>");
+        sb.append("]]></openid>");
         sb.append("<out_trade_no><![CDATA[");
         sb.append(bo.getOut_trade_no());
-        sb.append("]]</out_trade_no>");
+        sb.append("]]></out_trade_no>");
         sb.append("<spbill_create_ip><![CDATA[");
         sb.append(bo.getSpbill_create_ip());
-        sb.append("]]</spbill_create_ip>");
+        sb.append("]]></spbill_create_ip>");
         sb.append("<total_fee><![CDATA[");
         sb.append(bo.getTotal_fee());
-        sb.append("]]</total_fee>");
+        sb.append("]]></total_fee>");
         sb.append("<trade_type><![CDATA[");
         sb.append(bo.getTrade_type());
-        sb.append("]]</trade_type>");
+        sb.append("]]></trade_type>");
         sb.append("<sign><![CDATA[");
         sb.append(bo.getSign());
-        sb.append("]]</sign>");
+        sb.append("]]></sign>");
         sb.append("</xml>");
         return sb.toString();
     }
 
-    public static Map<String,Object> obj2Map(Object object) {
+    /**
+     * 统一返回给微信的返回结果
+     * @param msg
+     * @param code
+     * @return
+     */
+    public static String return2Weixin(String code,String msg){
+        StringBuffer sb = new StringBuffer();
+        sb.append("<xml><return_code><![CDATA[");
+        sb.append(code.toUpperCase());
+        sb.append("]]></return_code>");
+        sb.append("<return_msg><![CDATA[");
+        sb.append(msg);
+        sb.append("]]></return_msg>");
+        sb.append("</xml>");
+        return sb.toString();
+    }
+
+    public static Map<String,Object> obj2Map(Object object,int type) {
         if(null == object){
             return null;
         }
@@ -121,7 +139,16 @@ public class WeixinUtil {
         for (Field field : declaredFields) {
             field.setAccessible(true);
             try {
-                map.put(field.getName(), field.get(object));
+                Object obj = field.get(object);
+                String name = field.getName();
+                if(null != obj){
+                    if(1==type){
+                        if("sign".equalsIgnoreCase(name)){
+                            continue;
+                        }
+                    }
+                    map.put(field.getName(), obj);
+                }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
@@ -132,6 +159,9 @@ public class WeixinUtil {
     public static String sign(Map<String,Object> map){
         List<String> list = Lists.newArrayListWithCapacity(6);
         for(Map.Entry<String,Object> entry : map.entrySet()){
+            if(null == entry.getValue()){
+                continue;
+            }
             list.add(entry.getKey());
         }
         Collections.sort(list);

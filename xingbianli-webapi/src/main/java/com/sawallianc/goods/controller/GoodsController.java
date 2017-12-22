@@ -1,11 +1,8 @@
 package com.sawallianc.goods.controller;
 
 import com.sawallianc.entity.Result;
-import com.sawallianc.entity.ResultCode;
-import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.goods.bo.GoodsVO;
 import com.sawallianc.goods.service.GoodsService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,10 +22,5 @@ public class GoodsController {
     public Result getGoodsByRackUUID(@PathVariable String uuid){
         List<GoodsVO> result = goodsService.findGoodsByRackUUId(uuid);
         return Result.getSuccessResult(result);
-    }
-
-    @GetMapping(value = "/{uuid}/{type}")
-    public Result getGoodsByCategory(@PathVariable String uuid,@PathVariable String type){
-        return Result.getSuccessResult(goodsService.getGoodsByCategory(uuid,type));
     }
 }

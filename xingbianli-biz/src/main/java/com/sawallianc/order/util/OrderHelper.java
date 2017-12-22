@@ -17,12 +17,12 @@ public final class OrderHelper {
     private OrderHelper(){
 
     }
-    public static OrderDO doFromVo(OrderVO orderVO){
+    public static OrderDO doFromVo(OrderVO orderVO,String orderId){
         if(null == orderVO){
             return null;
         }
         OrderDO orderDO = new OrderDO();
-        orderDO.setOrderId(UUID.randomUUID().toString());
+        orderDO.setOrderId(orderId);
         orderDO.setBenefitPrice(orderVO.getBenefitPrice());
         orderDO.setGoodsSettlePrice(orderVO.getGoodsSettlePrice());
         orderDO.setGoodsTotalPrice(orderVO.getGoodsTotalPrice());

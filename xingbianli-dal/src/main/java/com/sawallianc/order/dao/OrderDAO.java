@@ -11,7 +11,11 @@ public interface OrderDAO {
 
     void makeOrderDetail(List<OrderDetailDO> list);
 
-    List<OrderDO> queryOrderInfo(@Param("phone")String phone,@Param("rack")String rack);
+    List<OrderDO> queryOrderInfo(@Param("phone")String phone);
 
-    List<OrderDetailDO> queryOrderDetailInfo(@Param("phone")String phone,@Param("rack")String rack);
+    List<OrderDetailDO> queryOrderDetailInfo(@Param("phone")String phone);
+
+    List<String> queryPayedWeixinOrderIds();
+
+    int updateOrderState2Succeed(@Param("orderId") String orderId,@Param("weixinOrderId") String weixinOrderId);
 }

@@ -1,5 +1,5 @@
 server:
- port: 6666
+ port: 8594
 
 spring:
   application:
@@ -9,7 +9,7 @@ spring:
       preferred-json-mapper: fastjson
   datasource:
     url: jdbc:mysql://localhost:3306/bianli?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=UTC
-    username: bianli
+    username: root
     password: a8594588
     driver-class-name: com.mysql.cj.jdbc.Driver
     filters: stat

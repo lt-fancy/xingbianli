@@ -18,8 +18,8 @@ public class ReceiveXmlProcess {
      * @param strXml
      * @return
      */
-    public static ReceiveXmlEntity getMsgEntity(String strXml){
-        ReceiveXmlEntity msg = null;
+    public static Object getMsgEntity(String strXml, Class<?> clazz){
+        Object msg = null;
         try {
             if (strXml.length() <= 0 || strXml == null)
                 return null;
@@ -32,18 +32,18 @@ public class ReceiveXmlProcess {
             Iterator<?> iter = root.elementIterator();
 
             // 遍历所有结点
-            msg = new ReceiveXmlEntity();
-            //利用反射机制，调用set方法
-            //获取该实体的元类型
-            Class<?> c = Class.forName("com.sawallianc.weixin.entity.ReceiveXmlEntity");
-            msg = (ReceiveXmlEntity)c.newInstance();//创建这个实体的对象
+            msg = clazz.newInstance();
+//            //利用反射机制，调用set方法
+//            //获取该实体的元类型
+//            Class<?> c = Class.forName("com.sawallianc.weixin.entity.UnionOrderReceiveXmlEntity");
+//            msg = c.newInstance();//创建这个实体的对象
 
             while(iter.hasNext()){
                 Element ele = (Element)iter.next();
                 //获取set方法中的参数字段（实体类的属性）
-                Field field = c.getDeclaredField(ele.getName());
+                Field field = clazz.getDeclaredField(ele.getName());
                 //获取set方法，field.getType())获取它的参数数据类型
-                Method method = c.getDeclaredMethod("set"+ele.getName(), field.getType());
+                Method method = clazz.getDeclaredMethod("set"+ele.getName().substring(0,1).toUpperCase()+ele.getName().substring(1), field.getType());
                 //调用set方法
                 method.invoke(msg, ele.getText());
             }

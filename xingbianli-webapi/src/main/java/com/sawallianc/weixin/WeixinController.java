@@ -2,8 +2,11 @@ package com.sawallianc.weixin;
 
 import com.sawallianc.entity.Result;
 import com.sawallianc.weixin.bo.WeixinUnionOrderBO;
+import com.sawallianc.weixin.util.WeixinUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/weixin")
@@ -26,7 +29,13 @@ public class WeixinController {
     }
 
     @PostMapping("/getPrepayId")
-    public Result getPrepayId(@RequestBody WeixinUnionOrderBO bo){
-        return Result.getSuccessResult(weixinService.getWeixinPayConfig(bo));
+    public @ResponseBody
+    Map<String,Object> getPrepayId(@RequestBody WeixinUnionOrderBO bo){
+        return WeixinUtil.obj2Map(weixinService.getWeixinPayConfig(bo),0);
+    }
+
+    @PostMapping("/afterPaySucceed")
+    public @ResponseBody String afterPaySucceed(@RequestBody String xml){
+        return weixinService.notifyAfterPay(xml);
     }
 }

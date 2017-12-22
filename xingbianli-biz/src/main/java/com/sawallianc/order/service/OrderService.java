@@ -9,5 +9,9 @@ import java.util.List;
 public interface OrderService {
     OrderDO makeOrder(OrderVO orderVO,String orderId);
 
-    List<OrderBO> queryOrderInfo(String phone,String rackUUid);
+    List<OrderBO> queryOrderInfo(String phone);
+
+    List<String> queryPayedWeixinOrderIds();
+
+    int updateOrderState2Succeed(String orderId,String weixinOrderId);
 }

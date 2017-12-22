@@ -11,4 +11,7 @@ public interface WeixinService {
     String getSignature(String url,String timestamp);
 
     WeixinPayVO getWeixinPayConfig(WeixinUnionOrderBO bo);
+
+    String notifyAfterPay(String xml);
+
 }

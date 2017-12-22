@@ -6,6 +6,7 @@ import com.sawallianc.rack.module.RackDO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public final class RackHelper {
@@ -18,6 +19,10 @@ public final class RackHelper {
         }
         RackBO bo = new RackBO();
         BeanUtils.copyProperties(rackDO,bo);
+        bo.setBizManId(String.valueOf(rackDO.getBizmanId()));
+        bo.setReplenishmanId(String.valueOf(rackDO.getReplenishmanId()));
+        bo.setGmtCreated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(rackDO.getGmtCreated()));
+        bo.setGmtModified(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(rackDO.getGmtModified()));
         return bo;
     }
 

@@ -9,6 +9,7 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
 @SpringBootApplication
 @EnableFeignClients(basePackages = {"com.sawallianc.thirdparty"})
+@EnableEurekaClient
 public class Application {
     public static void main(String[] args) {
         new SpringApplicationBuilder().sources(Application.class).bannerMode(Banner.Mode.OFF).run(args);

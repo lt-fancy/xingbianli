@@ -13,6 +13,7 @@
         <result property="isSpecialPrice" column="is_special_price"/>
         <result property="goodsCategory" column="goods_category"/>
         <result property="goodsNumber" column="goods_number"/>
+        <result property="goodsTag" column="goods_tag"/>
         <result property="isLimited" column="is_limited"/>
         <result property="isDeleted" column="is_deleted"/>
         <result property="gmtCreated" column="gmt_created"/>
@@ -24,12 +25,12 @@
     </sql>
 
     <select id="findGoodsByRackUUId" resultMap="baseMap">
-        select a.id, a.goods_name, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where b.rack_uuid=#{uuid} and a.id =b.goods_id
+        select a.id, a.goods_name, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount,a.goods_tag, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where b.rack_uuid=#{uuid} and a.id =b.goods_id
         and b.is_deleted=0 and a.is_deleted=0
     </select>
 
     <select id="getGoodsByCategory" resultMap="baseMap">
-        select a.id, a.goods_name, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where a.id =b.goods_id
+        select a.id, a.goods_name, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount,a.goods_tag, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where a.id =b.goods_id
         and b.is_deleted=0 and a.is_deleted=0
         and a.goods_category=#{category}
         and b.rack_uuid=#{uuid}

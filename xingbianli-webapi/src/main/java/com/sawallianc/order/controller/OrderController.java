@@ -28,14 +28,11 @@ public class OrderController extends WebApiAdvice{
         return Result.getSuccessResult(0);
     }
 
-    @GetMapping(value = "/queryOrderByPhone/{rack}/{phone}")
-    public Result queryOrderByPhone(@PathVariable String rack,@PathVariable String phone){
+    @GetMapping(value = "/queryOrderByPhone/{phone}")
+    public Result queryOrderByPhone(@PathVariable String phone){
         if(StringUtils.isBlank(phone)){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter phone is blank while querying order info");
         }
-        if(StringUtils.isBlank(rack)){
-            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter rack is blank while querying order info");
-        }
-        return Result.getSuccessResult(orderService.queryOrderInfo(phone,rack));
+        return Result.getSuccessResult(orderService.queryOrderInfo(phone));
     }
 }

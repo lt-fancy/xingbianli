@@ -19,8 +19,29 @@
         id,uuid,bizman_id,replenishman_id,rack_name,rack_address,is_deleted,gmt_created,gmt_modified
     </sql>
 
-    <select id="findGoodsByRackUUId" resultMap="baseMap">
-        select a.id, a.goods_name, a.goods_uri, a.goods_old_price, a.goods_now_price, a.goods_discount, a.goods_state,b.goods_number from goods_info a,rack_goods_mapping b where b.rack_uuid=#{uuid} and a.id =b.goods_id
-        and b.is_deleted=0 and a.is_deleted=0
+    <select id="findAllRack" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from rack_info order by gmt_modified desc;
+    </select>
+
+    <select id="findAllAvaliableRack" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from rack_info
+        where is_deleted = 0
+        order by gmt_modified desc;
+    </select>
+
+    <select id="findAllDisableRack" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from rack_info
+        where is_deleted = 1
+        order by gmt_modified desc;
+    </select>
+
+    <select id="getRackByUUID" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from rack_info
+        where uuid = #{uuid}
+        order by gmt_modified desc;
     </select>
 </mapper>

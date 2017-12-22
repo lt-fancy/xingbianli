@@ -1,26 +1,30 @@
 package com.sawallianc.common;
 
-import lombok.Data;
-
 public class Constant {
+
+    public static final Long DAY_SECONDS = 86400L;
+
+    /**
+     * state相关
+     */
     public static final String GOODS_CATEGORY_ENAME = "goods_category";
     public static final String GOODS_STATE_ENAME = "goods_state";
     public static final String RACK_ENAME = "rack";
     public static final String CHARGE_ENAME = "charge_amount";
+    public static final String GOODS_TAG = "goods_tag";
+    public static final String RANDOM_DISCOUNT = "random_discount";
 
     /**
-     * 全部商品
+     * 缓存key
      */
-    public static final String ALL_GOODS = "all-goods";
-    /**
-     * 今日特价
-     */
-    public static final String TODAY_SPECIAL_PRICE = "today-special-price";
-    /**
-     * 我常购买
-     */
-    public static final String MY_OFTEN_BUY = "me-often-buy";
-
+    public static final String ALL_GOODS_RACK_UUID = "xingbianli-all-goods-rack:{0}";
+    public static final String ALL_RACK = "xingbianli-all-rack";
+    public static final String ALL_AVAILABLE_RACK = "xingbianli-all-available-rack";
+    public static final String ALL_DISABLE_RACK = "xingbianli-all-disable-rack";
+    public static final String SINGLE_RACK = "xingbianli-single_rack:{0}";
+    public static final String STATE_SINGLE_INFO = "state-single-info:{0}:{1}";
+    public static final String STATE_LIST_INFO = "state-list-info:{0}";
+    public static final String ORDER_LIST_INFO = "order-list-info:{0}";
     public enum ChargeMethod {
         ALIPAY(0,"支付宝"),
         WEIXIN(1,"微信");

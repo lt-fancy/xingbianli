@@ -6,5 +6,11 @@ import java.util.List;
 
 public interface RackService {
 
-    List<RackBO> findGoodsByRackUUId(String uuid);
+    List<RackBO> findAllRack();
+
+    List<RackBO> findAllAvaliableRack();
+
+    List<RackBO> findAllDisableRack();
+
+    RackBO getRackByUUID(String uuid);
 }

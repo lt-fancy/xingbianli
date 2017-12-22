@@ -6,5 +6,11 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface RackDAO {
-    List<RackDO> findGoodsByRackUUId(@Param("uuid")String uuid);
+    List<RackDO> findAllRack();
+
+    List<RackDO> findAllAvaliableRack();
+
+    List<RackDO> findAllDisableRack();
+
+    RackDO getRackByUUID(@Param("uuid")String uuid);
 }

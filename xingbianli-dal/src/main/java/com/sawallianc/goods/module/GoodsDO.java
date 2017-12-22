@@ -7,6 +7,7 @@ import lombok.Data;
 public class GoodsDO extends BaseDO{
     private String goodsName;
     private String goodsUri;
+    private String goodsTag;
     private Double goodsOldPrice;
     private Double goodsNowPrice;
     private Double goodsDiscount;
