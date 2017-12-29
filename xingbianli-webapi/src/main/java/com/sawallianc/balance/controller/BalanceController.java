@@ -46,6 +46,9 @@ public class BalanceController {
                 break;
             }
         }
+        if(null == vo.getBonusAmount()){
+            vo.setBonusAmount(0);
+        }
         vo.setChargeMethod(Integer.parseInt(chargeMethod));
         vo.setChargeMethodName(Constant.ChargeMethod.getNameByCode(vo.getChargeMethod()));
         return Result.getSuccessResult(userService.charge(vo));
@@ -62,6 +65,11 @@ public class BalanceController {
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"settlePrice or totalPrice or benefitPrice is null while purchasing");
         }
         return Result.getSuccessResult(userService.purchase(vo));
+    }
+
+    @PostMapping(value = "/withhold")
+    public Result withhold(@RequestBody BalanceVO vo){
+        return Result.getSuccessResult(userService.withhold(vo));
     }
 
     @GetMapping(value = "/getChargeAmountConfig")

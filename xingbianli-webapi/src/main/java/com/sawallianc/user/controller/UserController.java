@@ -40,6 +40,19 @@ public class UserController extends WebApiAdvice {
         return Result.getSuccessResult(bo);
     }
 
+    @GetMapping(value = "/queryIfRegisteredByOpenid/{openid}")
+    public Result queryIfRegisteredByOpenid(@PathVariable String openid){
+        if(StringUtils.isBlank(openid)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"openid is blank while queryIfRegisteredByOpenid");
+        }
+        UserBO bo = userService.queryUserInfoByOpenid(openid);
+        if(null == bo || StringUtils.isBlank(bo.getPhone())){
+            return Result.getSuccessResult(0);
+        } else {
+            return Result.getSuccessResult(1);
+        }
+    }
+
     @PostMapping(value = "/addUser")
     public Result addUser(@RequestBody UserBO userBO) {
         if (null == userBO) {

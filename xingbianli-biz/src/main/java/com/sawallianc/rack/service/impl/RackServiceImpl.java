@@ -71,7 +71,7 @@ public class RackServiceImpl implements RackService {
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"uuid is null while querying rack by uuid");
         }
         String key = MessageFormat.format(Constant.SINGLE_RACK,uuid);
-        RackBO bo = JSONObject.parseObject(key,RackBO.class);
+        RackBO bo = JSONObject.parseObject(redisValueOperations.get(key),RackBO.class);
         if(null != bo){
             return bo;
         }

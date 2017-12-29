@@ -28,6 +28,13 @@ public interface UserService {
     UserBO queryUserInfoByPhone(String phone);
 
     /**
+     * 只做扣款处理，目的是为和下单分开
+     * @param balanceVO
+     * @return
+     */
+    boolean withhold(BalanceVO balanceVO);
+
+    /**
      * 根据微信openid查找用户信息
      * @param openid
      * @return

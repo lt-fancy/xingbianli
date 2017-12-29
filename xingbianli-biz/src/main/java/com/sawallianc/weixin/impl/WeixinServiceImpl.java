@@ -177,5 +177,4 @@ public class WeixinServiceImpl implements WeixinService {
         orderService.updateOrderState2Succeed(entity.getOut_trade_no(),entity.getTransaction_id());
         return WeixinUtil.return2Weixin(SUCCESS,"OK");
     }
-
 }

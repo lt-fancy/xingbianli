@@ -4,6 +4,10 @@ public class Constant {
 
     public static final Long DAY_SECONDS = 86400L;
 
+    public static final String APPID = "wx31a33d085b32ff73";
+    public static final String SECRET = "34408901cccb09f653157fa649f3e634";
+    public static final String GRANT_TYPE = "authorization_code";
+
     /**
      * state相关
      */

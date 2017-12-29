@@ -47,6 +47,9 @@ public class GoodsServiceImpl implements GoodsService{
         }
         result = Lists.newArrayList();
         List<GoodsBO> list = goodsHelper.bosFromDos(goodsDAO.findGoodsByRackUUId(uuid));
+        if(CollectionUtils.isEmpty(list)){
+            throw new BizRuntimeException(ResultCode.RACK_HAS_BEEN_DOWN,"rack has been down");
+        }
         List<StateBO> states = stateService.findChildrenStateByEname(Constant.GOODS_CATEGORY_ENAME);
         if(CollectionUtils.isEmpty(states)){
             throw new BizRuntimeException(ResultCode.ERROR,"goods category is not configured");

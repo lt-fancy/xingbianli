@@ -7,6 +7,7 @@ import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.order.bo.OrderVO;
 import com.sawallianc.order.service.OrderService;
 import com.sawallianc.order.vo.DiscountVO;
+import com.sawallianc.snow.SnowflakeIdWorker;
 import com.sawallianc.state.bo.StateBO;
 import com.sawallianc.state.service.StateService;
 import com.sawallianc.user.bo.UserBO;
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService{
         }
         List<StateBO> list = stateService.findChildrenStateByEname(Constant.RANDOM_DISCOUNT);
         DiscountVO discountVO = UserHelper.randomDiscount(list,price);
-        boolean flag = userDAO.purchase(price,phone) > 0;
+        boolean flag = this.withhold(balanceVO);
         OrderVO orderVO = new OrderVO();
         orderVO.setGoodsSettlePrice(discountVO.getSettlePrice());
         orderVO.setBenefitPrice(UserHelper.keep2Decimal(balanceVO.getTotalPrice()-orderVO.getGoodsSettlePrice()));
@@ -90,8 +91,29 @@ public class UserServiceImpl implements UserService{
         orderVO.setPhone(phone);
         orderVO.setJson(balanceVO.getJson());
         orderVO.setRandomBenefitPrice(discountVO.getDiscount());
-        orderService.makeOrder(orderVO, UUID.randomUUID().toString());
+        SnowflakeIdWorker snow = new SnowflakeIdWorker(0L,0L);
+        orderService.makeOrder(orderVO, String.valueOf(snow.nextId()));
         return discountVO;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean withhold(BalanceVO balanceVO){
+        if(null == balanceVO){
+            throw new BizRuntimeException(ResultCode.ERROR,"balanceVO is null while withholding");
+        }
+        Double price = balanceVO.getSettlePrice();
+        String phone = balanceVO.getPhone();
+        if(null == price){
+            throw new BizRuntimeException(ResultCode.ERROR,"price can't be null while withholding");
+        }
+        if(price < 0){
+            throw new BizRuntimeException(ResultCode.ERROR,"price must bigger than 0 while withholding");
+        }
+        if(StringUtils.isBlank(phone)){
+            throw new BizRuntimeException(ResultCode.ERROR,"phone is blank while withholding");
+        }
+        return userDAO.purchase(price,phone) > 0;
     }
 
     @Override

@@ -85,19 +85,21 @@ public class UserHelper {
             double left = chances.get(i);
             double right = chances.get(i + 1);
             if(random <= left){
-                vo.setChance(left);
-                vo.setDiscount(keep2Decimal(price * vo.getDiscount()));
-                vo.setSettlePrice(keep2Decimal(price - vo.getDiscount()));
+                vo.setChance(map.get(left));
+                vo.setSettlePrice(keep2Decimal(price * map.get(left)));
+                vo.setDiscount(keep2Decimal(price-vo.getSettlePrice()));
                 return vo;
             }
             if(random > left && random <= right){
-                vo.setChance(right);
-                vo.setDiscount(keep2Decimal(price * vo.getDiscount()));
-                vo.setSettlePrice(keep2Decimal(price - vo.getDiscount()));
+                vo.setChance(map.get(right));
+                vo.setSettlePrice(keep2Decimal(price * map.get(right)));
+                vo.setDiscount(keep2Decimal(price-vo.getSettlePrice()));
                 return vo;
             }
         }
-        return null;
+        vo.setDiscount(0);
+        vo.setSettlePrice(price);
+        return vo;
     }
 
     public static double keep2Decimal(double source){
