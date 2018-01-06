@@ -10,4 +10,6 @@ public class UserBO extends BaseBO{
     private String unionid;
     private String alipayId;
     private String balance;
+    private String weixinPic;
+    private String alipayPic;
 }

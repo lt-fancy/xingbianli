@@ -22,6 +22,7 @@
         <id column="id" property="id"/>
         <result property="orderId" column="order_id"/>
         <result property="goodsId" column="goods_id"/>
+        <result property="goodsName" column="goods_name"/>
         <result property="number" column="goods_number"/>
         <result property="price" column="price"/>
         <result property="phone" column="phone"/>
@@ -57,10 +58,11 @@
     </select>
 
     <select id="queryOrderDetailInfo" resultMap="detailMap">
-        select <include refid="detailSql"/>
-        from order_details
-        where phone=#{phone}
-        order by price desc
+        select a.id,a.order_id,a.goods_id,a.goods_number,a.price,a.phone,a.rack_uuid,b.goods_name
+        from order_details a,goods_info b
+        where a.phone=#{phone}
+        and a.goods_id=b.id
+        order by a.price desc
     </select>
 
     <select id="queryPayedWeixinOrderIds" resultType="java.lang.String">

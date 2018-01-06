@@ -2,14 +2,14 @@ package com.sawallianc.weixin.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
+import com.sawallianc.common.OrderIdUtil;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.order.service.OrderService;
-import com.sawallianc.snow.SnowflakeIdWorker;
 import com.sawallianc.state.bo.StateBO;
 import com.sawallianc.state.service.StateService;
-import com.sawallianc.thirdparty.WeixinFeignClient;
-import com.sawallianc.thirdparty.WeixinPayFeignClient;
+import com.sawallianc.thirdparty.weixin.WeixinFeignClient;
+import com.sawallianc.thirdparty.weixin.WeixinPayFeignClient;
 import com.sawallianc.user.service.UserService;
 import com.sawallianc.weixin.WeixinService;
 import com.sawallianc.weixin.bo.WeixinUnionOrderBO;
@@ -103,11 +103,9 @@ public class WeixinServiceImpl implements WeixinService {
 
     @Override
     public WeixinPayVO getWeixinPayConfig(WeixinUnionOrderBO bo) {
-        SnowflakeIdWorker snow = new SnowflakeIdWorker(0L,0L);
-        String orderId = String.valueOf(snow.nextId());
+        String orderId = OrderIdUtil.getOrderId();
         bo.setOut_trade_no(orderId);
         bo.setTotal_fee(1);
-        bo.setOpenid("os8oH0xmVwZn2jMAqGTUOq2TKwj0");
         bo.setSpbill_create_ip("192.168.1.100");
         bo.setAppid(WexinConstant.APP_ID);
         StateBO stateBO = stateService.findStateByEnameAndStateId("weixin_body",1);
@@ -116,6 +114,9 @@ public class WeixinServiceImpl implements WeixinService {
         bo.setNonce_str(WexinConstant.nonce_str);
         bo.setNotify_url(stateService.findStateByEnameAndStateId("weixin_notify_url",1).getStateName());
         bo.setTrade_type(WexinConstant.trade_type);
+        if(StringUtils.isBlank(bo.getOpenid())){
+            bo.setOpenid("os8oH0xmVwZn2jMAqGTUOq2TKwj0");
+        }
         LOGGER.info("=================bo: {}",bo);
         bo.setSign(WeixinUtil.sign(WeixinUtil.obj2Map(bo,1)));
         String xml = WeixinUtil.makeXml4UnionPrepay(bo);
@@ -142,7 +143,7 @@ public class WeixinServiceImpl implements WeixinService {
         bo.setPhone("17682305850");
         bo.setJson("[{\"goodsId\":\"1\",\"number\":\"2\",\"price\":\"1.88\"},{\"goodsId\":\"2\",\"number\":\"5\",\"price\":\"4.9\"},{\"goodsId\":\"4\",\"number\":\"3\",\"price\":\"2.7\"}]");
         //todo 后期在redis维护一定数量的id，每次用一个就取一个。当数量减少到阈值的时候就尾端进行补
-        orderService.makeOrder(bo,orderId);
+//        orderService.makeOrder(bo,orderId);
         LOGGER.info("============vo:"+vo);
         return vo;
     }

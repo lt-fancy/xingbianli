@@ -34,6 +34,8 @@ public class UserHelper {
         userDO.setOpenid(bo.getOpenid());
         userDO.setPhone(bo.getPhone());
         userDO.setUnionid(bo.getUnionid());
+        userDO.setWeixinPic(bo.getWeixinPic());
+        userDO.setAlipayPic(bo.getAlipayPic());
         return userDO;
     }
 
@@ -47,6 +49,8 @@ public class UserHelper {
         bo.setOpenid(userDO.getOpenid());
         bo.setPhone(userDO.getPhone());
         bo.setUnionid(userDO.getUnionid());
+        bo.setWeixinPic(userDO.getWeixinPic());
+        bo.setAlipayPic(userDO.getAlipayPic());
         return bo;
     }
 

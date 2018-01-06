@@ -40,8 +40,12 @@ public class BalanceController {
             throw new BizRuntimeException(ResultCode.ERROR,"charge bonus is not configured");
         }
         for(StateBO bo : stateBOS){
-            Integer configuredChargeBonus = Integer.parseInt(bo.getStateName());
-            if(chargeAmount == bo.getStateId().intValue()){
+            String[] array = bo.getStateName().split(",");
+            if(null == array){
+                continue;
+            }
+            Integer configuredChargeBonus = Integer.parseInt(array[1]);
+            if(chargeAmount == Integer.parseInt(array[0])){
                 vo.setBonusAmount(configuredChargeBonus);
                 break;
             }
@@ -81,8 +85,12 @@ public class BalanceController {
         List<BalanceVO> result = Lists.newArrayListWithCapacity(list.size());
         for(StateBO bo : list){
             BalanceVO vo = new BalanceVO();
-            vo.setChargeAmount(bo.getStateId());
-            vo.setBonusAmount(Integer.parseInt(bo.getStateName()));
+            String[] array = bo.getStateName().split(",");
+            if(null == array){
+                continue;
+            }
+            vo.setChargeAmount(Integer.parseInt(array[0]));
+            vo.setBonusAmount(Integer.parseInt(array[1]));
             result.add(vo);
         }
         return Result.getSuccessResult(result);

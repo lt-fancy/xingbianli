@@ -10,13 +10,15 @@
         <result property="unionid" column="unionid"/>
         <result property="alipayId" column="alipayid"/>
         <result property="balance" column="balance"/>
+        <result property="weixinPic" column="weixin_pic"/>
+        <result property="alipayPic" column="alipay_pic"/>
         <result property="isDeleted" column="is_deleted"/>
         <result property="gmtCreated" column="gmt_created"/>
         <result property="gmtModified" column="gmt_modified"/>
     </resultMap>
 
     <sql id="baseSql">
-        id,phone,openid,unionid,alipayid,balance,is_deleted,gmt_created,gmt_modified
+        id,phone,openid,unionid,alipayid,balance,weixin_pic,alipay_pic,is_deleted,gmt_created,gmt_modified
     </sql>
 
     <select id="queryUserByType" resultMap="baseMap">
@@ -36,9 +38,9 @@
     </select>
 
     <insert id="addUser" parameterType="com.sawallianc.user.module.UserDO">
-        insert into user_info(phone,openid,unionid,alipayId,balance,is_deleted,gmt_created)
+        insert into user_info(phone,openid,unionid,alipayId,balance,alipay_pic,weixin_pic,is_deleted,gmt_created)
         VALUES
-        (#{phone},#{openid},#{unionid},#{alipayId},0,0,now())
+        (#{phone},#{openid},#{unionid},#{alipayId},0,#{alipayPic},#{weixinPic},0,now())
     </insert>
 
     <update id="charge">

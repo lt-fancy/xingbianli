@@ -10,4 +10,6 @@ public class UserDO extends BaseDO{
     private String unionid;
     private String alipayId;
     private Double balance;
+    private String weixinPic;
+    private String alipayPic;
 }

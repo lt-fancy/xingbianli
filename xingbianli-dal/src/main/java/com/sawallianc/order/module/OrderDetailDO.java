@@ -7,6 +7,7 @@ public class OrderDetailDO {
     private Long id;
     private Long orderId;
     private Long goodsId;
+    private String goodsName;
     private Integer number;
     private Double price;
     private String phone;

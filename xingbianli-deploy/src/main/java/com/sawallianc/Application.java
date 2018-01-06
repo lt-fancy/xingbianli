@@ -8,7 +8,7 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
 @SpringBootApplication
-@EnableFeignClients(basePackages = {"com.sawallianc.thirdparty"})
+@EnableFeignClients(basePackages = {"com.sawallianc.thirdparty.weixin"})
 @EnableEurekaClient
 public class Application {
     public static void main(String[] args) {

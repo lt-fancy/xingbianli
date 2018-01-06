@@ -2,6 +2,7 @@ package com.sawallianc.user.service.impl;
 
 import com.sawallianc.annotation.ChargeLogAnnotation;
 import com.sawallianc.common.Constant;
+import com.sawallianc.common.OrderIdUtil;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.order.bo.OrderVO;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -91,8 +93,7 @@ public class UserServiceImpl implements UserService{
         orderVO.setPhone(phone);
         orderVO.setJson(balanceVO.getJson());
         orderVO.setRandomBenefitPrice(discountVO.getDiscount());
-        SnowflakeIdWorker snow = new SnowflakeIdWorker(0L,0L);
-        orderService.makeOrder(orderVO, String.valueOf(snow.nextId()));
+        orderService.makeOrder(orderVO, OrderIdUtil.getOrderId());
         return discountVO;
     }
 
