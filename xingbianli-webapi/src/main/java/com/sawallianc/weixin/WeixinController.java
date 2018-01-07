@@ -28,6 +28,11 @@ public class WeixinController {
         return Result.getSuccessResult(weixinService.getSignature(url,timestamp));
     }
 
+    @GetMapping("/getOpenid")
+    public Result getOpenid(String code){
+        return Result.getSuccessResult(weixinService.getOpenid(code));
+    }
+
     @PostMapping("/getPrepayId")
     public @ResponseBody
     Map<String,Object> getPrepayId(@RequestBody WeixinUnionOrderBO bo){

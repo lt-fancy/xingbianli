@@ -26,8 +26,9 @@ public class GoodsController {
     private WeixinFeignClient weixinFeignClient;
 
     @GetMapping(value = "/{uuid}")
-    public Result getGoodsByRackUUID(@PathVariable String uuid,String code){
+    public Result getGoodsByRackUUID(@PathVariable String uuid){
 //        System.out.println(weixinFeignClient.getOpenid(Constant.APPID,Constant.SECRET,code,Constant.GRANT_TYPE));
+//        System.out.println("===========================code:"+code);
         List<GoodsVO> result = goodsService.findGoodsByRackUUId(uuid);
         if(CollectionUtils.isEmpty(result)){
             throw new BizRuntimeException(ResultCode.RACK_HAS_BEEN_DOWN,"rack has been down");

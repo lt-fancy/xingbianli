@@ -12,4 +12,5 @@ public class UserBO extends BaseBO{
     private String balance;
     private String weixinPic;
     private String alipayPic;
+    private String checkCode;
 }

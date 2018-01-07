@@ -60,4 +60,14 @@ public class UserController extends WebApiAdvice {
         }
         return Result.getSuccessResult(userService.addUser(userBO));
     }
+
+    @GetMapping(value = "/sendCode")
+    public Result sendCode(String phone){
+        return Result.getSuccessResult(userService.sendCheckCode(phone));
+    }
+
+    @GetMapping(value = "/batchSend")
+    public Result batchSend(Integer id){
+        return Result.getSuccessResult(userService.batchSend(id));
+    }
 }

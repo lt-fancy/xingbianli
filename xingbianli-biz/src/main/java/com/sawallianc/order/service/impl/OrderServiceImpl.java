@@ -55,6 +55,8 @@ public class OrderServiceImpl implements OrderService{
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"order detail list is empty after parse json");
         }
         orderDAO.makeOrderDetail(OrderHelper.detailDOSFromBOS(details,orderDO));
+        String key = MessageFormat.format(Constant.ORDER_LIST_INFO,orderVO.getPhone());
+        redisValueOperations.delete(key);
         return orderDO;
     }
 

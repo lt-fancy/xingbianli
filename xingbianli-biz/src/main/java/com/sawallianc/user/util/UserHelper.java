@@ -109,4 +109,6 @@ public class UserHelper {
     public static double keep2Decimal(double source){
         return new BigDecimal(source).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
     }
+
+
 }

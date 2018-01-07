@@ -8,6 +8,8 @@ public interface WeixinService {
 
     String getTicket();
 
+    String getOpenid(String code);
+
     String getSignature(String url,String timestamp);
 
     WeixinPayVO getWeixinPayConfig(WeixinUnionOrderBO bo);

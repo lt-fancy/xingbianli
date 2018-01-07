@@ -41,6 +41,6 @@ eureka:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://sawallianc:a8594588@localhost:4237/eureka/
+      defaultZone: http://sawallianc:a8594588@118.25.35.210:4237/eureka/,http://sawallianc:a8594588@118.25.5.29:4237/eureka/
 
 

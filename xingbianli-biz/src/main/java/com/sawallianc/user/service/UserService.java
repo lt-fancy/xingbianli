@@ -59,4 +59,18 @@ public interface UserService {
      * @param chargeRecordInfo
      */
     void recordChargeInfo(ChargeRecordInfo chargeRecordInfo);
+
+    /**
+     * 发送验证码
+     * @param phone
+     * @return
+     */
+    String sendCheckCode(String phone);
+
+    /**
+     * 群发短信
+     * @param id
+     * @return
+     */
+    String batchSend(Integer id);
 }

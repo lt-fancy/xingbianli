@@ -3,6 +3,8 @@ package com.sawallianc.user.dao;
 import com.sawallianc.user.module.UserDO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.ArrayList;
+
 public interface UserDAO {
     /**
      * 充值
@@ -35,4 +37,10 @@ public interface UserDAO {
      * @return
      */
     int addUser(UserDO userDO);
+
+    /**
+     * 获取所有正常的用户
+     * @return
+     */
+    ArrayList<String> getAllPhone();
 }

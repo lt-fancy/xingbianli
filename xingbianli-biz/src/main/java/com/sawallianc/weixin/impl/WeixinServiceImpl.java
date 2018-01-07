@@ -6,6 +6,7 @@ import com.sawallianc.common.OrderIdUtil;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.order.service.OrderService;
+import com.sawallianc.redis.operations.RedisValueOperations;
 import com.sawallianc.state.bo.StateBO;
 import com.sawallianc.state.service.StateService;
 import com.sawallianc.thirdparty.weixin.WeixinFeignClient;
@@ -57,6 +58,9 @@ public class WeixinServiceImpl implements WeixinService {
     private RedisTemplate<String,String> redisTemplate;
 
     @Autowired
+    private RedisValueOperations redisValueOperations;
+
+    @Autowired
     private StateService stateService;
 
     @Autowired
@@ -64,26 +68,24 @@ public class WeixinServiceImpl implements WeixinService {
 
     @Override
     public String getAccessToken() {
-        String token = redisTemplate.opsForValue().get(ACCESS_TOKEN);
-        if(!StringUtils.isBlank(token)){
+        String token = redisValueOperations.get(ACCESS_TOKEN);
+
+        if(!StringUtils.isBlank(token) && !"null".equals(token.trim())){
             return token;
         }
-        String grant_type = "client_credential";
-        String appid = "wx31a33d085b32ff73";
-        String secret = "34408901cccb09f653157fa649f3e634";
-        JSONObject json = (JSONObject) weixinFeignClient.getAccessToken(grant_type,appid,secret);
+        JSONObject json = (JSONObject) weixinFeignClient.getAccessToken("client_credential",WexinConstant.APP_ID,WexinConstant.SECRET);
         if(json.isEmpty()){
             throw new BizRuntimeException(ResultCode.ERROR,"get access_token failed");
         }
         String value = json.getString("access_token");
-        redisTemplate.opsForValue().set(ACCESS_TOKEN,value,7190L, TimeUnit.SECONDS);
+        redisValueOperations.set(ACCESS_TOKEN,value,7190);
         return value;
     }
 
     @Override
     public String getTicket() {
-        String ticket = redisTemplate.opsForValue().get(JS_TICKET);
-        if(!StringUtils.isBlank(ticket)){
+        String ticket = redisValueOperations.get(JS_TICKET);
+        if(!StringUtils.isBlank(ticket) && !"null".equals(ticket.trim())){
             return ticket;
         }
         JSONObject json = (JSONObject) weixinFeignClient.getTicket(this.getAccessToken(),"jsapi");
@@ -91,8 +93,26 @@ public class WeixinServiceImpl implements WeixinService {
             throw new BizRuntimeException(ResultCode.ERROR,"get js_ticket failed");
         }
         String value = json.getString("ticket");
-        redisTemplate.opsForValue().set(JS_TICKET,value,7190L, TimeUnit.SECONDS);
+        redisValueOperations.set(JS_TICKET,value,7190);
         return value;
+
+    }
+
+    @Override
+    public String getOpenid(String code) {
+        if(StringUtils.isBlank(code)){
+            throw new BizRuntimeException(ResultCode.ERROR,"code is blank while get openid");
+        }
+        String json = weixinFeignClient.getOpenid(WexinConstant.APP_ID,WexinConstant.SECRET,code,"authorization_code");
+
+        if(StringUtils.isBlank(json)){
+            throw new BizRuntimeException(ResultCode.ERROR,"get openid error");
+        }
+        JSONObject object = JSONObject.parseObject(json);
+        if(object.isEmpty()||!object.containsKey("openid")){
+            throw new BizRuntimeException(ResultCode.ERROR,"get openid error,code:"+object.getString("errcode")+",msg:"+object.getString("errmsg"));
+        }
+        return object.getString("openid");
     }
 
     @Override
@@ -105,7 +125,7 @@ public class WeixinServiceImpl implements WeixinService {
     public WeixinPayVO getWeixinPayConfig(WeixinUnionOrderBO bo) {
         String orderId = OrderIdUtil.getOrderId();
         bo.setOut_trade_no(orderId);
-        bo.setTotal_fee(1);
+//        bo.setTotal_fee(1);
         bo.setSpbill_create_ip("192.168.1.100");
         bo.setAppid(WexinConstant.APP_ID);
         StateBO stateBO = stateService.findStateByEnameAndStateId("weixin_body",1);
