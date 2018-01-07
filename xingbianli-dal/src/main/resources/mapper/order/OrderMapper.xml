@@ -54,6 +54,7 @@
         select <include refid="baseSql"/>
         from order_info
         where phone_number=#{phone}
+        and order_state = 1
         order by gmt_created desc
     </select>
 

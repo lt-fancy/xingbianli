@@ -125,18 +125,16 @@ public class WeixinServiceImpl implements WeixinService {
     public WeixinPayVO getWeixinPayConfig(WeixinUnionOrderBO bo) {
         String orderId = OrderIdUtil.getOrderId();
         bo.setOut_trade_no(orderId);
-//        bo.setTotal_fee(1);
-        bo.setSpbill_create_ip("192.168.1.100");
+        bo.setSpbill_create_ip(bo.getSpbill_create_ip());
         bo.setAppid(WexinConstant.APP_ID);
         StateBO stateBO = stateService.findStateByEnameAndStateId("weixin_body",1);
         bo.setBody(stateBO.getStateName());
         bo.setMch_id(WexinConstant.MCH_ID);
-        bo.setNonce_str(WexinConstant.nonce_str);
         bo.setNotify_url(stateService.findStateByEnameAndStateId("weixin_notify_url",1).getStateName());
         bo.setTrade_type(WexinConstant.trade_type);
-        if(StringUtils.isBlank(bo.getOpenid())){
-            bo.setOpenid("os8oH0xmVwZn2jMAqGTUOq2TKwj0");
-        }
+//        if(StringUtils.isBlank(bo.getOpenid())){
+//            bo.setOpenid("os8oH0xmVwZn2jMAqGTUOq2TKwj0");
+//        }
         LOGGER.info("=================bo: {}",bo);
         bo.setSign(WeixinUtil.sign(WeixinUtil.obj2Map(bo,1)));
         String xml = WeixinUtil.makeXml4UnionPrepay(bo);
@@ -150,9 +148,9 @@ public class WeixinServiceImpl implements WeixinService {
         WeixinPayVO vo = new WeixinPayVO();
         vo.setPrepayId("prepay_id="+entity.getPrepay_id());
         Map<String,Object> map = Maps.newHashMap();
-        map.put("appId","wx31a33d085b32ff73");
-        map.put("timeStamp","1512697027");
-        map.put("nonceStr","sawallianc");
+        map.put("appId",WexinConstant.APP_ID);
+        map.put("timeStamp",bo.getTimeStamp());
+        map.put("nonceStr",bo.getNonce_str());
         map.put("package",vo.getPrepayId());
         map.put("signType","MD5");
         vo.setSign(WeixinUtil.sign(map));
@@ -162,8 +160,9 @@ public class WeixinServiceImpl implements WeixinService {
         bo.setRackUUID("qweqweqwe");
         bo.setPhone("17682305850");
         bo.setJson("[{\"goodsId\":\"1\",\"number\":\"2\",\"price\":\"1.88\"},{\"goodsId\":\"2\",\"number\":\"5\",\"price\":\"4.9\"},{\"goodsId\":\"4\",\"number\":\"3\",\"price\":\"2.7\"}]");
+        bo.setJson(bo.getJson());
         //todo 后期在redis维护一定数量的id，每次用一个就取一个。当数量减少到阈值的时候就尾端进行补
-//        orderService.makeOrder(bo,orderId);
+        orderService.makeOrder(bo,orderId);
         LOGGER.info("============vo:"+vo);
         return vo;
     }

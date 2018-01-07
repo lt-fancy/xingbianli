@@ -142,6 +142,9 @@ public class WeixinUtil {
                 Object obj = field.get(object);
                 String name = field.getName();
                 if(null != obj){
+                    if("timeStamp".equalsIgnoreCase(name)){
+                        continue;
+                    }
                     if(1==type){
                         if("sign".equalsIgnoreCase(name)){
                             continue;

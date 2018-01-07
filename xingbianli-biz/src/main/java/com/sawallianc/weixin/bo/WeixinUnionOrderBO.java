@@ -16,4 +16,5 @@ public class WeixinUnionOrderBO extends OrderVO {
     private String trade_type;
     private String openid;
     private Integer total_fee;
+    private String timeStamp;
 }
