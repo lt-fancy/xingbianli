@@ -6,7 +6,6 @@ package com.sawallianc.weixin.cons;
 public final class WexinConstant {
     public static final String APP_ID = "wxb53ceb34679a983c";
     public static final String SECRET = "35762cc6c1f65d7745367ee7c76ba3f6";
-    public static final String nonce_str = "sawallianc";
     public static final String trade_type = "JSAPI";
 //    public static final String MCH_ID = "1494046632";
     public static final String MCH_ID = "1495774822";

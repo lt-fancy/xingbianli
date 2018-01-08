@@ -8,7 +8,7 @@ spring:
     converters:
       preferred-json-mapper: fastjson
   datasource:
-    url: jdbc:mysql://172.17.0.15:3306/bianli?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=UTC
+    url: jdbc:mysql://172.17.0.15:3306/bianli?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&serverTimezone=Asia/Shanghai
     username: root
     password: a8594588A
     driver-class-name: com.mysql.cj.jdbc.Driver
