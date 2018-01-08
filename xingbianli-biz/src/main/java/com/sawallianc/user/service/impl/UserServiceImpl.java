@@ -149,7 +149,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public boolean addUser(UserBO userBO) {
+    public UserBO addUser(UserBO userBO) {
         if(null == userBO){
             throw new BizRuntimeException(ResultCode.ERROR,"userBo is null while add user");
         }
@@ -172,7 +172,10 @@ public class UserServiceImpl implements UserService{
             //说明该手机号已注册
             throw new BizRuntimeException(ResultCode.PHONE_ALREADY_REGISTERED,"phone already registered");
         }
-        return userDAO.addUser(UserHelper.doFromBo(userBO)) > 0;
+        userDAO.addUser(UserHelper.doFromBo(userBO));
+        userBO.setBalance("0.00");
+        userBO.setCheckCode(null);
+        return userBO;
     }
 
     @Override

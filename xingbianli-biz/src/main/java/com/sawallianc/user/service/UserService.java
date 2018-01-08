@@ -52,7 +52,7 @@ public interface UserService {
      * @param userBO
      * @return
      */
-    boolean addUser(UserBO userBO);
+    UserBO addUser(UserBO userBO);
 
     /**
      * 记录充值信息
