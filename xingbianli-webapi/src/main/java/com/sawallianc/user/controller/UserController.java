@@ -53,6 +53,19 @@ public class UserController extends WebApiAdvice {
         }
     }
 
+    @GetMapping(value = "/queryIfRegisteredByPhone/{phone}")
+    public Result queryIfRegisteredByPhone(@PathVariable String phone){
+        if(StringUtils.isBlank(phone)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"openid is blank while queryIfRegisteredByOpenid");
+        }
+        UserBO bo = userService.queryUserInfoByPhone(phone);
+        if(null == bo || StringUtils.isBlank(bo.getPhone())){
+            return Result.getSuccessResult(0);
+        } else {
+            return Result.getSuccessResult(1);
+        }
+    }
+
     @PostMapping(value = "/addUser")
     public Result addUser(@RequestBody UserBO userBO) {
         if (null == userBO) {

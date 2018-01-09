@@ -1,11 +1,13 @@
 package com.sawallianc.user.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.qcloudsms.SmsMultiSender;
 import com.github.qcloudsms.SmsMultiSenderResult;
 import com.github.qcloudsms.SmsSingleSender;
 import com.github.qcloudsms.SmsSingleSenderResult;
 import com.google.common.collect.Lists;
 import com.sawallianc.annotation.ChargeLogAnnotation;
+import com.sawallianc.common.CacheUtil;
 import com.sawallianc.common.Constant;
 import com.sawallianc.common.OrderIdUtil;
 import com.sawallianc.entity.ResultCode;
@@ -149,7 +151,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public boolean addUser(UserBO userBO) {
+    public UserBO addUser(UserBO userBO) {
         if(null == userBO){
             throw new BizRuntimeException(ResultCode.ERROR,"userBo is null while add user");
         }
@@ -158,12 +160,16 @@ public class UserServiceImpl implements UserService{
             throw new BizRuntimeException(ResultCode.WRONG_CHECK_CODE,"checkcode is blank while register");
         }
         String phone = userBO.getPhone();
-        String key = MessageFormat.format(CHECK_CODE,phone);
-        String cacheCode = redisValueOperations.get(key);
-        if(StringUtils.isBlank(cacheCode)){
+        String key = CacheUtil.generateCacheKey(CHECK_CODE,phone);
+        JSONObject cacheCode = redisValueOperations.get(key,JSONObject.class);
+        if(null == cacheCode || cacheCode.isEmpty()){
             throw new BizRuntimeException(ResultCode.CHECK_CODE_EXPIRED,"check code expired");
         }
-        if(!code.equals(cacheCode)){
+        String checkcode = cacheCode.getString("checkcode");
+        if(StringUtils.isBlank(checkcode)){
+            throw new BizRuntimeException(ResultCode.CHECK_CODE_EXPIRED,"check code expired");
+        }
+        if(!code.equals(checkcode)){
             throw new BizRuntimeException(ResultCode.WRONG_CHECK_CODE,"check code is not correct,param code is "+code+" while cacheCode is "+cacheCode);
         }
         UserBO exists = this.queryUserInfoByPhone(phone);
@@ -172,7 +178,10 @@ public class UserServiceImpl implements UserService{
             //说明该手机号已注册
             throw new BizRuntimeException(ResultCode.PHONE_ALREADY_REGISTERED,"phone already registered");
         }
-        return userDAO.addUser(UserHelper.doFromBo(userBO)) > 0;
+        userDAO.addUser(UserHelper.doFromBo(userBO));
+        userBO.setBalance("0.00");
+        userBO.setCheckCode(null);
+        return userBO;
     }
 
     @Override
@@ -194,8 +203,10 @@ public class UserServiceImpl implements UserService{
             params.add("10");
             SmsSingleSenderResult result = sender.sendWithParam("86", phone, 74010, params, "", "", "");
             System.out.println(result);
-            String key = MessageFormat.format(CHECK_CODE,phone);
-            redisValueOperations.set(key,code,10*60);
+            String key = CacheUtil.generateCacheKey(CHECK_CODE,phone);
+            JSONObject jsonCache = new JSONObject();
+            jsonCache.put("checkcode",code);
+            redisValueOperations.set(key,jsonCache,10*60);
             return code;
         } catch (Exception e) {
             throw new BizRuntimeException(ResultCode.SEND_CODE_ERROR_HAPPEN,"error occured while send checkcode"+e);

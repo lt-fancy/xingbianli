@@ -12,11 +12,10 @@ import java.util.*;
  * Created by sawallianc on 2017/12/11 0011.
  */
 public class WeixinUtil {
-    public static String SHA1(String url,String ticket,String timestamp) {
+    public static String SHA1(String url,String ticket,String timestamp,String nonceStr) {
         MessageDigest messageDigest = null;
         String signature = null;
         try {
-            String nonceStr = "fingertap";
             Map<String,String> map = new HashMap<String, String>();
             map.put("jsapi_ticket",ticket);
             map.put("noncestr",nonceStr);
@@ -142,7 +141,7 @@ public class WeixinUtil {
                 Object obj = field.get(object);
                 String name = field.getName();
                 if(null != obj){
-                    if("timeStamp".equalsIgnoreCase(name)){
+                    if("timeStamp".equalsIgnoreCase(name) || "payType".equalsIgnoreCase(name)){
                         continue;
                     }
                     if(1==type){

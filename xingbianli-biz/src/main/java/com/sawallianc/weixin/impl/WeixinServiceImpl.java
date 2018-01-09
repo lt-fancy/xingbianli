@@ -1,7 +1,9 @@
 package com.sawallianc.weixin.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
+import com.sawallianc.common.Constant;
 import com.sawallianc.common.OrderIdUtil;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
@@ -11,7 +13,9 @@ import com.sawallianc.state.bo.StateBO;
 import com.sawallianc.state.service.StateService;
 import com.sawallianc.thirdparty.weixin.WeixinFeignClient;
 import com.sawallianc.thirdparty.weixin.WeixinPayFeignClient;
+import com.sawallianc.user.bo.UserBO;
 import com.sawallianc.user.service.UserService;
+import com.sawallianc.user.vo.BalanceVO;
 import com.sawallianc.weixin.WeixinService;
 import com.sawallianc.weixin.bo.WeixinUnionOrderBO;
 import com.sawallianc.weixin.cons.WexinConstant;
@@ -20,6 +24,7 @@ import com.sawallianc.weixin.entity.ReceiveXmlProcess;
 import com.sawallianc.weixin.entity.UnionOrderReceiveXmlEntity;
 import com.sawallianc.weixin.util.WeixinUtil;
 import com.sawallianc.weixin.vo.WeixinPayVO;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +35,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class WeixinServiceImpl implements WeixinService {
@@ -68,32 +72,37 @@ public class WeixinServiceImpl implements WeixinService {
 
     @Override
     public String getAccessToken() {
-        String token = redisValueOperations.get(ACCESS_TOKEN);
-
-        if(!StringUtils.isBlank(token) && !"null".equals(token.trim())){
-            return token;
+        JSONObject cache = redisValueOperations.get(ACCESS_TOKEN, JSONObject.class);
+        if(null != cache && !cache.isEmpty()){
+            String token = cache.getString("access_token");
+            if(StringUtils.isNotBlank(token) && !"null".equals(token.trim())){
+                return token;
+            }
         }
         JSONObject json = (JSONObject) weixinFeignClient.getAccessToken("client_credential",WexinConstant.APP_ID,WexinConstant.SECRET);
         if(json.isEmpty()){
             throw new BizRuntimeException(ResultCode.ERROR,"get access_token failed");
         }
         String value = json.getString("access_token");
-        redisValueOperations.set(ACCESS_TOKEN,value,7190);
+        redisValueOperations.set(ACCESS_TOKEN,json,7190);
         return value;
     }
 
     @Override
     public String getTicket() {
-        String ticket = redisValueOperations.get(JS_TICKET);
-        if(!StringUtils.isBlank(ticket) && !"null".equals(ticket.trim())){
-            return ticket;
+        JSONObject cache = redisValueOperations.get(JS_TICKET, JSONObject.class);
+        if(null != cache && !cache.isEmpty()){
+            String ticket = cache.getString("ticket");
+            if(StringUtils.isNotBlank(ticket) && !"null".equals(ticket.trim())){
+                return ticket;
+            }
         }
         JSONObject json = (JSONObject) weixinFeignClient.getTicket(this.getAccessToken(),"jsapi");
         if(json.isEmpty()){
             throw new BizRuntimeException(ResultCode.ERROR,"get js_ticket failed");
         }
         String value = json.getString("ticket");
-        redisValueOperations.set(JS_TICKET,value,7190);
+        redisValueOperations.set(JS_TICKET,json,7190);
         return value;
 
     }
@@ -116,9 +125,9 @@ public class WeixinServiceImpl implements WeixinService {
     }
 
     @Override
-    public String getSignature(String url,String timestamp) {
+    public String getSignature(String url,String timestamp,String nonceStr) {
         String ticket = this.getTicket();
-        return WeixinUtil.SHA1(url,ticket,timestamp);
+        return WeixinUtil.SHA1(url,ticket,timestamp,nonceStr);
     }
 
     @Override
@@ -127,14 +136,15 @@ public class WeixinServiceImpl implements WeixinService {
         bo.setOut_trade_no(orderId);
         bo.setSpbill_create_ip(bo.getSpbill_create_ip());
         bo.setAppid(WexinConstant.APP_ID);
-        StateBO stateBO = stateService.findStateByEnameAndStateId("weixin_body",1);
-        bo.setBody(stateBO.getStateName());
+        if("pay".equalsIgnoreCase(bo.getPayType())){
+            bo.setBody("零距狸-商品支付");
+            bo.setNotify_url(stateService.findStateByEnameAndStateId("weixin_notify_url",1).getStateName());
+        } else {
+            bo.setBody("零距狸-余额充值");
+            bo.setNotify_url(stateService.findStateByEnameAndStateId("weixin_notify_url",2).getStateName());
+        }
         bo.setMch_id(WexinConstant.MCH_ID);
-        bo.setNotify_url(stateService.findStateByEnameAndStateId("weixin_notify_url",1).getStateName());
         bo.setTrade_type(WexinConstant.trade_type);
-//        if(StringUtils.isBlank(bo.getOpenid())){
-//            bo.setOpenid("os8oH0xmVwZn2jMAqGTUOq2TKwj0");
-//        }
         LOGGER.info("=================bo: {}",bo);
         bo.setSign(WeixinUtil.sign(WeixinUtil.obj2Map(bo,1)));
         String xml = WeixinUtil.makeXml4UnionPrepay(bo);
@@ -195,6 +205,65 @@ public class WeixinServiceImpl implements WeixinService {
             return WeixinUtil.return2Weixin(FAIL,"this order has been dealt");
         }
         orderService.updateOrderState2Succeed(entity.getOut_trade_no(),entity.getTransaction_id());
+        return WeixinUtil.return2Weixin(SUCCESS,"OK");
+    }
+
+    @Override
+    public String notifyAfterCharge(String xml) {
+        if(StringUtils.isBlank(xml)){
+            return WeixinUtil.return2Weixin(FAIL,"xml is empty");
+        }
+        LOGGER.info("=============after charge success,weixin return xml"+xml);
+        PayNotifyReceiveXmlEntity entity = (PayNotifyReceiveXmlEntity) ReceiveXmlProcess.getMsgEntity(xml,PayNotifyReceiveXmlEntity.class);
+        if(null == entity){
+            return WeixinUtil.return2Weixin(FAIL,"wrong xml format");
+        }
+        if(FAIL.equalsIgnoreCase(entity.getReturn_code())){
+            return WeixinUtil.return2Weixin(FAIL,entity.getReturn_msg());
+        }
+        if(FAIL.equalsIgnoreCase(entity.getResult_code())){
+            LOGGER.error(entity.getErr_code_des());
+            return WeixinUtil.return2Weixin(FAIL,entity.getErr_code());
+        }
+        Map<String,Object> map = WeixinUtil.obj2Map(entity,1);
+        String sign = WeixinUtil.sign(map);
+        if(!sign.equalsIgnoreCase(entity.getSign())){
+            return WeixinUtil.return2Weixin(FAIL,"invalid sign");
+        }
+
+        List<String> weixinOrderIds = orderService.queryPayedWeixinOrderIds();
+        if(weixinOrderIds.contains(entity.getTransaction_id())){
+            //如果处理过，直接返回成功
+            return WeixinUtil.return2Weixin(SUCCESS,"OK");
+        }
+        BalanceVO vo = new BalanceVO();
+        int chargeAmount = Integer.parseInt(entity.getTotal_fee())/100;
+        vo.setChargeAmount(chargeAmount);
+        UserBO user = userService.queryUserInfoByOpenid(entity.getOpenid());
+        if(null == user){
+            throw new BizRuntimeException(ResultCode.NOT_REGISTERED,"openid:"+entity.getOpenid()+" is not registered");
+        }
+        vo.setPhone(user.getPhone());
+        List<StateBO> stateBOS = stateService.findChildrenStateByEname(Constant.CHARGE_ENAME);
+        if(CollectionUtils.isEmpty(stateBOS)){
+            throw new BizRuntimeException(ResultCode.ERROR,"charge bonus is not configured");
+        }
+        for(StateBO bo : stateBOS){
+            String[] array = bo.getStateName().split(",");
+            Integer configuredChargeBonus = Integer.parseInt(array[1]);
+            if(chargeAmount == Integer.parseInt(array[0])){
+                vo.setBonusAmount(configuredChargeBonus);
+                break;
+            }
+        }
+        if(null == vo.getBonusAmount()){
+            vo.setBonusAmount(0);
+        }
+        vo.setChargeMethod(1);
+        vo.setChargeMethodName(Constant.ChargeMethod.getNameByCode(vo.getChargeMethod()));
+        if(userService.charge(vo)){
+            throw new BizRuntimeException(ResultCode.ERROR,"充值失败");
+        }
         return WeixinUtil.return2Weixin(SUCCESS,"OK");
     }
 }

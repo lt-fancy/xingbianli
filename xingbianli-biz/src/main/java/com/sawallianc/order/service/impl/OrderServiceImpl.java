@@ -2,6 +2,7 @@ package com.sawallianc.order.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
+import com.sawallianc.common.CacheUtil;
 import com.sawallianc.common.Constant;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
@@ -55,7 +56,7 @@ public class OrderServiceImpl implements OrderService{
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"order detail list is empty after parse json");
         }
         orderDAO.makeOrderDetail(OrderHelper.detailDOSFromBOS(details,orderDO));
-        String key = MessageFormat.format(Constant.ORDER_LIST_INFO,orderVO.getPhone());
+        String key = CacheUtil.generateCacheKey(Constant.ORDER_LIST_INFO,orderVO.getPhone());
         redisValueOperations.delete(key);
         return orderDO;
     }
@@ -65,7 +66,7 @@ public class OrderServiceImpl implements OrderService{
         if(StringUtils.isBlank(phone)){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter phone is blank while query order info");
         }
-        String key = MessageFormat.format(Constant.ORDER_LIST_INFO,phone);
+        String key = CacheUtil.generateCacheKey(Constant.ORDER_LIST_INFO,phone);
         List<OrderBO> orderList = redisValueOperations.getArray(key,OrderBO.class);
         if(CollectionUtils.isNotEmpty(orderList)){
             return orderList;

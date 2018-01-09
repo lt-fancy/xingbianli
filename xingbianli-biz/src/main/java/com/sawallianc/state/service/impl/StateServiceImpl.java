@@ -2,6 +2,7 @@ package com.sawallianc.state.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.sawallianc.common.CacheUtil;
 import com.sawallianc.common.Constant;
 import com.sawallianc.redis.operations.RedisValueOperations;
 import com.sawallianc.state.bo.StateBO;
@@ -25,7 +26,7 @@ public class StateServiceImpl implements StateService{
     private StateDAO stateDAO;
     @Override
     public StateBO findStateByEnameAndStateId(String ename, Integer stateId) {
-        String key = MessageFormat.format(Constant.STATE_SINGLE_INFO,ename,stateId);
+        String key = CacheUtil.generateCacheKey(Constant.STATE_SINGLE_INFO,ename,stateId);
         StateBO bo = JSONObject.parseObject(redisValueOperations.get(key),StateBO.class);
         if(null != bo){
             return bo;
@@ -38,7 +39,7 @@ public class StateServiceImpl implements StateService{
 
     @Override
     public List<StateBO> findChildrenStateByEname(String ename) {
-        String key = MessageFormat.format(Constant.STATE_LIST_INFO,ename);
+        String key = CacheUtil.generateCacheKey(Constant.STATE_LIST_INFO,ename);
         List<StateBO> result = JSONArray.parseArray(redisValueOperations.get(key),StateBO.class);
         if(CollectionUtils.isNotEmpty(result)){
             return result;

@@ -10,10 +10,12 @@ public interface WeixinService {
 
     String getOpenid(String code);
 
-    String getSignature(String url,String timestamp);
+    String getSignature(String url,String timestamp,String nonceStr);
 
     WeixinPayVO getWeixinPayConfig(WeixinUnionOrderBO bo);
 
     String notifyAfterPay(String xml);
+
+    String notifyAfterCharge(String xml);
 
 }

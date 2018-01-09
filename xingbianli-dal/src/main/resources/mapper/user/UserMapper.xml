@@ -40,7 +40,7 @@
     <insert id="addUser" parameterType="com.sawallianc.user.module.UserDO">
         insert into user_info(phone,openid,unionid,alipayId,balance,alipay_pic,weixin_pic,is_deleted,gmt_created)
         VALUES
-        (#{phone},#{openid},#{unionid},#{alipayId},0,#{alipayPic},#{weixinPic},0,now())
+        (#{phone},#{openid},#{unionid},#{alipayId},0.00,#{alipayPic},#{weixinPic},0,now())
     </insert>
 
     <update id="charge">

@@ -24,8 +24,8 @@ public class WeixinController {
     }
 
     @GetMapping("/getSignature")
-    public Result getSignature(String url,String timestamp){
-        return Result.getSuccessResult(weixinService.getSignature(url,timestamp));
+    public Result getSignature(String url,String timestamp,String nonceStr){
+        return Result.getSuccessResult(weixinService.getSignature(url,timestamp,nonceStr));
     }
 
     @GetMapping("/getOpenid")
@@ -43,4 +43,11 @@ public class WeixinController {
     public @ResponseBody String afterPaySucceed(@RequestBody String xml){
         return weixinService.notifyAfterPay(xml);
     }
+
+    @PostMapping("/afterChargeSucceed")
+    public @ResponseBody String afterChargeSucceed(@RequestBody String xml){
+        return weixinService.notifyAfterPay(xml);
+    }
+
+
 }

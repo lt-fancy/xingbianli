@@ -1,5 +1,6 @@
 package com.sawallianc.sms.biz.impl;
 
+import com.sawallianc.common.CacheUtil;
 import com.sawallianc.redis.operations.RedisValueOperations;
 import com.sawallianc.sms.biz.SmsService;
 import com.sawallianc.sms.dao.SmsDAO;
@@ -23,7 +24,7 @@ public class SmsServiceImpl implements SmsService{
 
     @Override
     public SmsDO getSmsById(Integer id) {
-        String key = MessageFormat.format(SMS_KEY,id);
+        String key = CacheUtil.generateCacheKey(SMS_KEY,id);
         SmsDO smsDO = redisValueOperations.get(key,SmsDO.class);
         if(null != smsDO){
             return smsDO;

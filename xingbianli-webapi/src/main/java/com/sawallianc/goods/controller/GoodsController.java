@@ -5,8 +5,8 @@ import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.goods.bo.GoodsVO;
 import com.sawallianc.goods.service.GoodsService;
-import com.sawallianc.thirdparty.weixin.WeixinFeignClient;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,17 +22,20 @@ public class GoodsController {
     @Autowired
     private GoodsService goodsService;
 
-    @Autowired
-    private WeixinFeignClient weixinFeignClient;
-
     @GetMapping(value = "/{uuid}")
     public Result getGoodsByRackUUID(@PathVariable String uuid){
-//        System.out.println(weixinFeignClient.getOpenid(Constant.APPID,Constant.SECRET,code,Constant.GRANT_TYPE));
-//        System.out.println("===========================code:"+code);
         List<GoodsVO> result = goodsService.findGoodsByRackUUId(uuid);
         if(CollectionUtils.isEmpty(result)){
             throw new BizRuntimeException(ResultCode.RACK_HAS_BEEN_DOWN,"rack has been down");
         }
         return Result.getSuccessResult(result);
+    }
+
+    @GetMapping(value = "/queryGoodsByGoodsName")
+    public Result queryGoodsByGoodsName(String uuid,String goodsName){
+        if(StringUtils.isBlank(uuid)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"rack uuid must not be blank");
+        }
+        return Result.getSuccessResult(goodsService.queryGoodsByGoodsName(uuid,goodsName));
     }
 }

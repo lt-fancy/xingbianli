@@ -12,4 +12,12 @@ public interface GoodsService {
      */
     List<GoodsVO> findGoodsByRackUUId(String uuid);
 
+    /**
+     * 根据商品名称筛选
+     * @param uuid
+     * @param goodsName
+     * @return
+     */
+    List<GoodsVO> queryGoodsByGoodsName(String uuid,String goodsName);
+
 }
