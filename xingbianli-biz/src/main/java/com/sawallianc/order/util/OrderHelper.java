@@ -65,6 +65,7 @@ public final class OrderHelper {
         bo.setBenefitPrice(String.valueOf(orderDO.getBenefitPrice()));
         bo.setGoodsSettlePrice(String.valueOf(orderDO.getGoodsSettlePrice()));
         bo.setGoodsTotalPrice(String.valueOf(orderDO.getGoodsTotalPrice()));
+        bo.setRandomBenefitPrice(String.valueOf(orderDO.getRandomBenefitPrice()));
         bo.setId(orderDO.getId());
         bo.setPhone(orderDO.getPhone());
         bo.setRackUUID(orderDO.getRackUUID());
