@@ -43,6 +43,7 @@ public class GoodsHelper {
         }
         bo.setGoodsName(goodsDO.getGoodsName());
         bo.setGoodsUri(goodsDO.getGoodsUri());
+        bo.setGoodsEanCode(goodsDO.getGoodsEanCode());
         return bo;
     }
 

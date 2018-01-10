@@ -38,4 +38,17 @@ public class GoodsController {
         }
         return Result.getSuccessResult(goodsService.queryGoodsByGoodsName(uuid,goodsName));
     }
+
+    @GetMapping(value = "/queryGoodsByGoodsId")
+    public Result queryGoodsByGoodsId(String goodsIds){
+        if(StringUtils.isBlank(goodsIds)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"goodsIds must not be blank while query goods info");
+        }
+        return Result.getSuccessResult(goodsService.queryGoodsByGoodsId(goodsIds));
+    }
+
+    @GetMapping(value = "/queryGoodsByEanCode")
+    public Result queryGoodsByEanCode(String goodsEanCode,String rackUUid){
+        return Result.getSuccessResult(goodsService.queryGoodsByEanCode(goodsEanCode,rackUUid));
+    }
 }

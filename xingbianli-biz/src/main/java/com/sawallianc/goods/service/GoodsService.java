@@ -1,5 +1,6 @@
 package com.sawallianc.goods.service;
 
+import com.sawallianc.goods.bo.GoodsBO;
 import com.sawallianc.goods.bo.GoodsVO;
 
 import java.util.List;
@@ -20,4 +21,19 @@ public interface GoodsService {
      */
     List<GoodsVO> queryGoodsByGoodsName(String uuid,String goodsName);
 
+    /**
+     * 去待支付页面需要重新请求接口，不能从首页直接带值过来
+     * 前端会传递客户购物车里面的goodsId集合，用英文逗号分隔
+     * @param goodsIds
+     * @return
+     */
+    List<GoodsBO> queryGoodsByGoodsId(String goodsIds);
+
+    /**
+     * 通过扫码获取商品详情
+     * @param goodsEanCode
+     * @param rackUUid
+     * @return
+     */
+    GoodsBO queryGoodsByEanCode(String goodsEanCode,String rackUUid);
 }

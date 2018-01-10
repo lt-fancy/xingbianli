@@ -16,5 +16,5 @@ public class OrderBO extends BaseBO{
     private String benefitPrice;
     private String randomBenefitPrice;
     private String orderState;
-    public List<OrderDetailDO> details;
+    private List<OrderDetailDO> details;
 }

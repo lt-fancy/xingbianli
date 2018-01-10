@@ -35,7 +35,7 @@ public class OrderServiceImpl implements OrderService{
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public OrderDO makeOrder(OrderVO orderVO,String orderId) {
+    public OrderDO makeOrder(OrderVO orderVO,String orderId,Integer orderState) {
         if(null == orderVO){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"orderVO is null while insert order");
         }
@@ -50,6 +50,7 @@ public class OrderServiceImpl implements OrderService{
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"order detail is blank while insert order");
         }
         OrderDO orderDO = OrderHelper.doFromVo(orderVO,orderId);
+        orderDO.setOrderState(orderState);
         orderDAO.makeOrder(orderDO);
         List<OrderDetailBO> details = JSONArray.parseArray(json, OrderDetailBO.class);
         if(CollectionUtils.isEmpty(details)){
@@ -75,7 +76,7 @@ public class OrderServiceImpl implements OrderService{
         if(CollectionUtils.isEmpty(orderList)){
             return Lists.newArrayList();
         }
-        List<OrderDetailDO> details = orderDAO.queryOrderDetailInfo(phone);
+        List<OrderDetailDO> details = orderDAO.queryOrderDetailInfoByPhone(phone);
         for(OrderBO bo : orderList){
             List<OrderDetailDO> inner = Lists.newArrayList();
             for(OrderDetailDO detail : details){
@@ -90,12 +91,17 @@ public class OrderServiceImpl implements OrderService{
     }
 
     @Override
-    public List<String> queryPayedWeixinOrderIds() {
-        return orderDAO.queryPayedWeixinOrderIds();
+    public int updateOrderState2Succeed(String orderId,String weixinOrderId) {
+        return orderDAO.updateOrderState2Succeed(orderId,weixinOrderId);
     }
 
     @Override
-    public int updateOrderState2Succeed(String orderId,String weixinOrderId) {
-        return orderDAO.updateOrderState2Succeed(orderId,weixinOrderId);
+    public Integer queryIfDealtWeixin(String weixin) {
+        return orderDAO.queryIfDealtWeixin(weixin);
+    }
+
+    @Override
+    public List<OrderDetailDO> queryOrderDetailByOrderId(String orderId) {
+        return orderDAO.queryOrderDetailInfoByOrderId(orderId);
     }
 }

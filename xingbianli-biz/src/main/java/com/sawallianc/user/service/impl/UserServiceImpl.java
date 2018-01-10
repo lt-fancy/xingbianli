@@ -24,6 +24,7 @@ import com.sawallianc.user.bo.UserBO;
 import com.sawallianc.user.dao.ChargeRecordInfoDAO;
 import com.sawallianc.user.dao.UserDAO;
 import com.sawallianc.user.module.ChargeRecordInfo;
+import com.sawallianc.user.module.ChargeSucceedRecord;
 import com.sawallianc.user.service.UserService;
 import com.sawallianc.user.util.UserHelper;
 import com.sawallianc.user.vo.BalanceVO;
@@ -111,7 +112,7 @@ public class UserServiceImpl implements UserService{
         orderVO.setPhone(phone);
         orderVO.setJson(balanceVO.getJson());
         orderVO.setRandomBenefitPrice(discountVO.getDiscount());
-        orderService.makeOrder(orderVO, OrderIdUtil.getOrderId());
+        orderService.makeOrder(orderVO, OrderIdUtil.getOrderId(),1);
         return discountVO;
     }
 
@@ -187,6 +188,18 @@ public class UserServiceImpl implements UserService{
     @Override
     public void recordChargeInfo(ChargeRecordInfo chargeRecordInfo) {
         chargeRecordInfoDAO.insertChargeRecordInfo(chargeRecordInfo);
+    }
+
+    @Override
+    public boolean recordChargeSucceed(String recordId){
+        ChargeSucceedRecord record = new ChargeSucceedRecord();
+        record.setWeixinOrderId(recordId);
+        return chargeRecordInfoDAO.insertChargeSucceedRecord4Weixin(record) > 0;
+    }
+
+    @Override
+    public Integer queryIfRecordWeixinOrderId(String weixin) {
+        return chargeRecordInfoDAO.queryIfRecordWeixinOrderId(weixin);
     }
 
     @Override

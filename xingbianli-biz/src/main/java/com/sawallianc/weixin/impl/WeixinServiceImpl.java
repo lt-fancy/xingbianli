@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -171,8 +172,7 @@ public class WeixinServiceImpl implements WeixinService {
         bo.setPhone("17682305850");
         bo.setJson("[{\"goodsId\":\"1\",\"number\":\"2\",\"price\":\"1.88\"},{\"goodsId\":\"2\",\"number\":\"5\",\"price\":\"4.9\"},{\"goodsId\":\"4\",\"number\":\"3\",\"price\":\"2.7\"}]");
         bo.setJson(bo.getJson());
-        //todo 后期在redis维护一定数量的id，每次用一个就取一个。当数量减少到阈值的时候就尾端进行补
-        orderService.makeOrder(bo,orderId);
+        orderService.makeOrder(bo,orderId,0);
         LOGGER.info("============vo:"+vo);
         return vo;
     }
@@ -200,15 +200,16 @@ public class WeixinServiceImpl implements WeixinService {
             return WeixinUtil.return2Weixin(FAIL,"invalid sign");
         }
 
-        List<String> weixinOrderIds = orderService.queryPayedWeixinOrderIds();
-        if(weixinOrderIds.contains(entity.getTransaction_id())){
-            return WeixinUtil.return2Weixin(FAIL,"this order has been dealt");
+        Integer result = orderService.queryIfDealtWeixin(entity.getTransaction_id());
+        if(null != result && result.intValue() == 1){
+            return WeixinUtil.return2Weixin(SUCCESS,"OK");
         }
         orderService.updateOrderState2Succeed(entity.getOut_trade_no(),entity.getTransaction_id());
         return WeixinUtil.return2Weixin(SUCCESS,"OK");
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public String notifyAfterCharge(String xml) {
         if(StringUtils.isBlank(xml)){
             return WeixinUtil.return2Weixin(FAIL,"xml is empty");
@@ -230,14 +231,14 @@ public class WeixinServiceImpl implements WeixinService {
         if(!sign.equalsIgnoreCase(entity.getSign())){
             return WeixinUtil.return2Weixin(FAIL,"invalid sign");
         }
-
-        List<String> weixinOrderIds = orderService.queryPayedWeixinOrderIds();
-        if(weixinOrderIds.contains(entity.getTransaction_id())){
+        String weixinOrderId = entity.getTransaction_id();
+        Integer result = userService.queryIfRecordWeixinOrderId(weixinOrderId);
+        if(null != result && result.intValue() == 1){
             //如果处理过，直接返回成功
             return WeixinUtil.return2Weixin(SUCCESS,"OK");
         }
         BalanceVO vo = new BalanceVO();
-        int chargeAmount = Integer.parseInt(entity.getTotal_fee())/100;
+        int chargeAmount = 200;
         vo.setChargeAmount(chargeAmount);
         UserBO user = userService.queryUserInfoByOpenid(entity.getOpenid());
         if(null == user){
@@ -261,9 +262,11 @@ public class WeixinServiceImpl implements WeixinService {
         }
         vo.setChargeMethod(1);
         vo.setChargeMethodName(Constant.ChargeMethod.getNameByCode(vo.getChargeMethod()));
-        if(userService.charge(vo)){
+        userService.recordChargeSucceed(weixinOrderId);
+        if(!userService.charge(vo)){
             throw new BizRuntimeException(ResultCode.ERROR,"充值失败");
         }
         return WeixinUtil.return2Weixin(SUCCESS,"OK");
     }
+
 }

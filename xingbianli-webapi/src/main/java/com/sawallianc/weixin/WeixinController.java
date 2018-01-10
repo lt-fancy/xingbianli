@@ -46,7 +46,7 @@ public class WeixinController {
 
     @PostMapping("/afterChargeSucceed")
     public @ResponseBody String afterChargeSucceed(@RequestBody String xml){
-        return weixinService.notifyAfterPay(xml);
+        return weixinService.notifyAfterCharge(xml);
     }
 
 

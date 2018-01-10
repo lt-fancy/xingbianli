@@ -62,7 +62,7 @@ public class UserHelper {
         System.out.println("随机小数："+random);
         Map<Double,Double> map = Maps.newHashMapWithExpectedSize(list.size());
         List<Double> chances = Lists.newArrayListWithCapacity(list.size());
-        double bonusChance = 0D;
+        double bonusChance = 0.01D;
         for(StateBO bo : list){
             String value = bo.getStateName();
             if(StringUtils.isBlank(value)){
@@ -70,7 +70,7 @@ public class UserHelper {
             }
             double discount = Double.parseDouble(value.split(",")[0]);
             double chance = Double.parseDouble(value.split(",")[1]);
-            if(0D != discount){
+            if(0.01D != discount){
                 map.put(chance,discount);
                 chances.add(chance);
             } else {

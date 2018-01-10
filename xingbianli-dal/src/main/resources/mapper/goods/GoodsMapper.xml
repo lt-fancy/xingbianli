@@ -14,6 +14,7 @@
         <result property="goodsCategory" column="goods_category"/>
         <result property="goodsNumber" column="goods_number"/>
         <result property="goodsTag" column="goods_tag"/>
+        <result property="goodsEanCode" column="goods_ean_code"/>
         <result property="isLimited" column="is_limited"/>
         <result property="isDeleted" column="is_deleted"/>
         <result property="gmtCreated" column="gmt_created"/>
@@ -24,22 +25,52 @@
         id,uuid,bizman_id,replenishman_id,rack_name,rack_address,is_limited,is_deleted,gmt_created,gmt_modified
     </sql>
 
+    <sql id="goodsSql">
+        id, goods_name, goods_uri, goods_old_price,goods_ean_code, goods_now_price, goods_discount, goods_category, is_special_price, is_limited, is_deleted, gmt_created, gmt_modified, goods_tag
+    </sql>
+
     <select id="findGoodsByRackUUId" resultMap="baseMap">
-        select a.id, a.goods_name, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount,a.goods_tag, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where b.rack_uuid=#{uuid} and a.id =b.goods_id
+        select a.id, a.goods_name,a.goods_ean_code, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount,a.goods_tag, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where b.rack_uuid=#{uuid} and a.id =b.goods_id
         and b.is_deleted=0 and a.is_deleted=0
     </select>
 
     <select id="getGoodsByCategory" resultMap="baseMap">
-        select a.id, a.goods_name, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount,a.goods_tag, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where a.id =b.goods_id
+        select a.id, a.goods_name,a.goods_ean_code, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount,a.goods_tag, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where a.id =b.goods_id
         and b.is_deleted=0 and a.is_deleted=0
         and a.goods_category=#{category}
         and b.rack_uuid=#{uuid}
     </select>
 
     <select id="getTodaySpecialPrice" resultMap="baseMap">
-        select a.id, a.goods_name, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where a.id =b.goods_id
+        select a.id, a.goods_name,goods_ean_code, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where a.id =b.goods_id
         and b.is_deleted=0 and a.is_deleted=0
         and a.is_special_price=0
         and b.rack_uuid=#{uuid}
+    </select>
+
+    <select id="queryGoodsByGoodsId" resultMap="baseMap">
+        select <include refid="goodsSql"/>
+        from goods_info
+        where id in 
+        (
+        <foreach collection="list" item="item" separator=",">
+          #{item}
+        </foreach>
+        )
+    </select>
+
+    <select id="queryGoodsByEanCode" resultMap="baseMap">
+        select a.id, a.goods_name,a.goods_ean_code, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount,a.goods_tag, a.is_special_price
+        from goods_info a
+        where a.goods_ean_code=#{eanCode}
+        and a.is_deleted=0
+        and EXISTS (SELECT
+        1
+        FROM
+        rack_goods_mapping
+        WHERE
+        rack_uuid = #{rackUUid}
+        AND is_deleted = 0
+        AND a.id = goods_id)
     </select>
 </mapper>

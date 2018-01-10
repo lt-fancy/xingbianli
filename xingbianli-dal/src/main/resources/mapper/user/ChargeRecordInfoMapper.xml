@@ -21,4 +21,15 @@
         VALUES
         (#{phone},#{chargeAmount},#{chargeMethod},#{bonusAmount},#{chargeDate})
     </insert>
+
+    <insert id="insertChargeSucceedRecord4Weixin" parameterType="com.sawallianc.user.module.ChargeSucceedRecord">
+        insert into charge_succeed_record(weixin_order_id,happen_time)
+        VALUES
+        (#{weixinOrderId},now())
+    </insert>
+
+    <select id="queryIfRecordWeixinOrderId" resultType="java.lang.Integer">
+        select 1 from charge_succeed_record
+        where weixin_order_id=#{weixin}
+    </select>
 </mapper>

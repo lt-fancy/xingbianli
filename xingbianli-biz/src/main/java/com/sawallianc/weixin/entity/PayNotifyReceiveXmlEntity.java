@@ -29,4 +29,5 @@ public class PayNotifyReceiveXmlEntity {
     private String transaction_id;
     private String out_trade_no;
     private String time_end;
+    private String attach;
 }

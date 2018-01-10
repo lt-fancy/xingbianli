@@ -17,4 +17,5 @@ public class GoodsBO extends BaseBO{
     private String goodsStateName;
     private String goodsNumber;
     private String goodsTag;
+    private String goodsEanCode;
 }

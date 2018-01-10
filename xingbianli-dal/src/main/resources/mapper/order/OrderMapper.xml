@@ -39,7 +39,7 @@
 
     <insert id="makeOrder" parameterType="com.sawallianc.order.module.OrderDO" useGeneratedKeys="true" keyProperty="id">
         insert into order_info(order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,random_benefit_price,order_state,is_deleted,gmt_created)values
-        (#{orderId},#{phone},#{rackUUID},#{goodsTotalPrice},#{goodsSettlePrice},#{benefitPrice},#{randomBenefitPrice},0,0,now())
+        (#{orderId},#{phone},#{rackUUID},#{goodsTotalPrice},#{goodsSettlePrice},#{benefitPrice},#{randomBenefitPrice},#{orderState},0,now())
     </insert>
 
     <insert id="makeOrderDetail" parameterType="java.util.List">
@@ -58,7 +58,7 @@
         order by gmt_created desc
     </select>
 
-    <select id="queryOrderDetailInfo" resultMap="detailMap">
+    <select id="queryOrderDetailInfoByPhone" resultMap="detailMap">
         select a.id,a.order_id,a.goods_id,a.goods_number,a.price,a.phone,a.rack_uuid,b.goods_name
         from order_details a,goods_info b
         where a.phone=#{phone}
@@ -66,11 +66,18 @@
         order by a.price desc
     </select>
 
-    <select id="queryPayedWeixinOrderIds" resultType="java.lang.String">
-        select weixin_order_id from order_info
-        where is_deleted=0
+    <select id="queryOrderDetailInfoByOrderId" resultMap="detailMap">
+        select a.id,a.order_id,a.goods_id,a.goods_number,a.price,a.phone,a.rack_uuid,b.goods_name
+        from order_details a,goods_info b
+        where a.order_id=#{orderId}
+        and a.goods_id=b.id
+        order by a.price desc
+    </select>
+
+    <select id="queryIfDealtWeixin" resultType="java.lang.Integer">
+        select 1 from order_info
+        where weixin_order_id=#{weixin}
         and order_state=1
-        and gmt_created BETWEEN DATE_ADD(NOW(),INTERVAL -1 DAY) and now()
     </select>
 
     <update id="updateOrderState2Succeed">

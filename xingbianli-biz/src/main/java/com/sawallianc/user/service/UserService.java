@@ -73,4 +73,8 @@ public interface UserService {
      * @return
      */
     String batchSend(Integer id);
+
+    boolean recordChargeSucceed(String recordId);
+
+    Integer queryIfRecordWeixinOrderId(String weixin);
 }

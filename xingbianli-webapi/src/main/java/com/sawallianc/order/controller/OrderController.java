@@ -24,7 +24,7 @@ public class OrderController extends WebApiAdvice{
         if(null == orderVO){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter orderVO is null");
         }
-        orderService.makeOrder(orderVO, UUID.randomUUID().toString());
+        orderService.makeOrder(orderVO, UUID.randomUUID().toString(),0);
         return Result.getSuccessResult(0);
     }
 
@@ -34,5 +34,13 @@ public class OrderController extends WebApiAdvice{
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter phone is blank while querying order info");
         }
         return Result.getSuccessResult(orderService.queryOrderInfo(phone));
+    }
+
+    @GetMapping(value = "/queryOrderDetailsByOrderId")
+    public Result queryOrderDetailsByOrderId(String orderId){
+        if(StringUtils.isBlank(orderId)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter orderId is blank while querying order details");
+        }
+        return Result.getSuccessResult(orderService.queryOrderDetailByOrderId(orderId));
     }
 }

@@ -13,9 +13,10 @@ public interface OrderDAO {
 
     List<OrderDO> queryOrderInfo(@Param("phone")String phone);
 
-    List<OrderDetailDO> queryOrderDetailInfo(@Param("phone")String phone);
+    List<OrderDetailDO> queryOrderDetailInfoByPhone(@Param("phone")String phone);
 
-    List<String> queryPayedWeixinOrderIds();
+    List<OrderDetailDO> queryOrderDetailInfoByOrderId(@Param("orderId")String orderId);
 
+    Integer queryIfDealtWeixin(@Param("weixin") String weixin);
     int updateOrderState2Succeed(@Param("orderId") String orderId,@Param("weixinOrderId") String weixinOrderId);
 }

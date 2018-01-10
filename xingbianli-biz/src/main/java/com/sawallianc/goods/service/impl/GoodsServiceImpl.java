@@ -101,4 +101,31 @@ public class GoodsServiceImpl implements GoodsService{
         return result;
     }
 
+    @Override
+    public List<GoodsBO> queryGoodsByGoodsId(String goodsIds) {
+        if(StringUtils.isBlank(goodsIds)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"goodsIds must not be blank while query goods info");
+        }
+        String[] idArray = goodsIds.split(",");
+        if(null == idArray || idArray.length == 0){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"goodsIds:"+goodsIds+" does not have a correct format,must have a ','");
+        }
+        List<Integer> idList = Lists.newArrayListWithCapacity(idArray.length);
+        for(String id : idArray){
+            idList.add(Integer.parseInt(id));
+        }
+        return goodsHelper.bosFromDos(goodsDAO.queryGoodsByGoodsId(idList));
+    }
+
+    @Override
+    public GoodsBO queryGoodsByEanCode(String goodsEanCode,String rackUUid) {
+        if(StringUtils.isBlank(goodsEanCode)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"goodsEanCode must not be blank while query goods info by goods ean code");
+        }
+        if(StringUtils.isBlank(rackUUid)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"rackUUid must not be blank while query goods info by goods ean code");
+        }
+        return goodsHelper.boFromDo(goodsDAO.queryGoodsByEanCode(goodsEanCode,rackUUid));
+    }
+
 }

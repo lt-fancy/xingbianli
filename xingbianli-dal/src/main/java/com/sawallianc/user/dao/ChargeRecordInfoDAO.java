@@ -1,6 +1,8 @@
 package com.sawallianc.user.dao;
 
 import com.sawallianc.user.module.ChargeRecordInfo;
+import com.sawallianc.user.module.ChargeSucceedRecord;
+import org.apache.ibatis.annotations.Param;
 
 public interface ChargeRecordInfoDAO {
     /**
@@ -9,4 +11,13 @@ public interface ChargeRecordInfoDAO {
      * @return
      */
     int insertChargeRecordInfo(ChargeRecordInfo chargeRecordInfo);
+
+    /**
+     * 用户充值余额记录
+     * @param chargeSucceedRecord
+     * @return
+     */
+    int insertChargeSucceedRecord4Weixin(ChargeSucceedRecord chargeSucceedRecord);
+
+    Integer queryIfRecordWeixinOrderId(@Param("weixin") String weixin);
 }
