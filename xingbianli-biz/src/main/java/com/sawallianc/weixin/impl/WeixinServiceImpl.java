@@ -137,12 +137,14 @@ public class WeixinServiceImpl implements WeixinService {
         bo.setOut_trade_no(orderId);
         bo.setSpbill_create_ip(bo.getSpbill_create_ip());
         bo.setAppid(WexinConstant.APP_ID);
+        boolean needMakeOrder = true;
         if("pay".equalsIgnoreCase(bo.getPayType())){
             bo.setBody("零距狸-商品支付");
             bo.setNotify_url(stateService.findStateByEnameAndStateId("weixin_notify_url",1).getStateName());
         } else {
             bo.setBody("零距狸-余额充值");
             bo.setNotify_url(stateService.findStateByEnameAndStateId("weixin_notify_url",2).getStateName());
+            needMakeOrder = false;
         }
         bo.setMch_id(WexinConstant.MCH_ID);
         bo.setTrade_type(WexinConstant.trade_type);
@@ -165,14 +167,10 @@ public class WeixinServiceImpl implements WeixinService {
         map.put("package",vo.getPrepayId());
         map.put("signType","MD5");
         vo.setSign(WeixinUtil.sign(map));
-        bo.setBenefitPrice(0D);
-        bo.setGoodsTotalPrice(0D);
-        bo.setGoodsSettlePrice(0.01);
-        bo.setRackUUID("qweqweqwe");
-        bo.setPhone("17682305850");
-        bo.setJson("[{\"goodsId\":\"1\",\"number\":\"2\",\"price\":\"1.88\"},{\"goodsId\":\"2\",\"number\":\"5\",\"price\":\"4.9\"},{\"goodsId\":\"4\",\"number\":\"3\",\"price\":\"2.7\"}]");
-        bo.setJson(bo.getJson());
-        orderService.makeOrder(bo,orderId,0);
+        vo.setOrderId(orderId);
+        if(!needMakeOrder){
+            return vo;
+        }
         LOGGER.info("============vo:"+vo);
         return vo;
     }

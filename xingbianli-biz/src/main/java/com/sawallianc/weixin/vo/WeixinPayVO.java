@@ -6,4 +6,5 @@ import lombok.Data;
 public class WeixinPayVO {
     private String prepayId;
     private String sign;
+    private String orderId;
 }

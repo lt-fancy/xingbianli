@@ -30,8 +30,8 @@
     </sql>
 
     <select id="findGoodsByRackUUId" resultMap="baseMap">
-        select a.id, a.goods_name,a.goods_ean_code, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount,a.goods_tag, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b where b.rack_uuid=#{uuid} and a.id =b.goods_id
-        and b.is_deleted=0 and a.is_deleted=0
+        select a.id, a.goods_name,a.goods_ean_code, a.goods_uri,a.is_limited, a.goods_old_price,a.goods_category, a.goods_now_price, a.goods_discount,a.goods_tag, a.is_special_price,b.goods_number from goods_info a,rack_goods_mapping b,rack_info c where b.rack_uuid=#{uuid} and a.id =b.goods_id
+        and b.is_deleted=0 and a.is_deleted=0 and c.is_deleted=0 and b.rack_uuid=c.uuid
     </select>
 
     <select id="getGoodsByCategory" resultMap="baseMap">
@@ -57,6 +57,12 @@
           #{item}
         </foreach>
         )
+    </select>
+
+    <select id="getGoodsById" resultMap="baseMap">
+        select <include refid="goodsSql"/>
+        from goods_info
+        where id=#{id}
     </select>
 
     <select id="queryGoodsByEanCode" resultMap="baseMap">

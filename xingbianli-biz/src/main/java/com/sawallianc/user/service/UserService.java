@@ -1,9 +1,11 @@
 package com.sawallianc.user.service;
 
-import com.sawallianc.order.vo.DiscountVO;
+import com.sawallianc.order.bo.OrderBO;
 import com.sawallianc.user.bo.UserBO;
 import com.sawallianc.user.module.ChargeRecordInfo;
 import com.sawallianc.user.vo.BalanceVO;
+
+import java.util.List;
 
 public interface UserService {
     /**
@@ -18,7 +20,7 @@ public interface UserService {
      * @param balanceVO
      * @return
      */
-    DiscountVO purchase(BalanceVO balanceVO);
+    OrderBO purchase(BalanceVO balanceVO);
 
     /**
      * 根据手机号查找用户信息
@@ -65,7 +67,7 @@ public interface UserService {
      * @param phone
      * @return
      */
-    String sendCheckCode(String phone);
+    String sendCheckCode(String phone,String openid);
 
     /**
      * 群发短信

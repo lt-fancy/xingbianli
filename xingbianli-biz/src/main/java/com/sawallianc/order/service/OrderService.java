@@ -8,9 +8,11 @@ import com.sawallianc.order.module.OrderDetailDO;
 import java.util.List;
 
 public interface OrderService {
-    OrderDO makeOrder(OrderVO orderVO,String orderId,Integer orderState);
+    OrderBO makeOrder(OrderVO orderVO,Integer orderState);
 
-    List<OrderBO> queryOrderInfo(String phone);
+    List<OrderBO> queryOrderInfoByPhone(String phone);
+
+    List<OrderBO> queryOrderInfoByOpenid(String openid);
 
     int updateOrderState2Succeed(String orderId,String weixinOrderId);
 

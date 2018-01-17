@@ -1,12 +1,15 @@
 package com.sawallianc.order.util;
 
 import com.google.common.collect.Lists;
+import com.sawallianc.common.DateUtil;
+import com.sawallianc.common.OrderIdUtil;
 import com.sawallianc.order.bo.OrderBO;
 import com.sawallianc.order.bo.OrderDetailBO;
 import com.sawallianc.order.bo.OrderVO;
 import com.sawallianc.order.module.OrderDO;
 import com.sawallianc.order.module.OrderDetailDO;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -17,18 +20,26 @@ public final class OrderHelper {
     private OrderHelper(){
 
     }
-    public static OrderDO doFromVo(OrderVO orderVO,String orderId){
+    public static OrderDO doFromVo(OrderVO orderVO){
         if(null == orderVO){
             return null;
         }
         OrderDO orderDO = new OrderDO();
-        orderDO.setOrderId(orderId);
+        if(StringUtils.isBlank(orderVO.getOrderId())){
+            orderDO.setOrderId(OrderIdUtil.getOrderId());
+        } else {
+            orderDO.setOrderId(orderVO.getOrderId());
+        }
         orderDO.setBenefitPrice(orderVO.getBenefitPrice());
         orderDO.setGoodsSettlePrice(orderVO.getGoodsSettlePrice());
         orderDO.setGoodsTotalPrice(orderVO.getGoodsTotalPrice());
         orderDO.setRackUUID(orderVO.getRackUUID());
         orderDO.setPhone(orderVO.getPhone());
-        orderDO.setRandomBenefitPrice(orderVO.getRandomBenefitPrice());
+        if(null != orderVO.getRandomBenefitPrice()){
+            orderDO.setRandomBenefitPrice(orderVO.getRandomBenefitPrice());
+        } else {
+            orderDO.setRandomBenefitPrice(0.00);
+        }
         return orderDO;
     }
 
@@ -44,6 +55,32 @@ public final class OrderHelper {
         detail.setPhone(orderDO.getPhone());
         detail.setRackUuid(orderDO.getRackUUID());
         return detail;
+    }
+
+    public static OrderDetailBO detailBOFromDO(OrderDetailDO orderDetailDO){
+        OrderDetailBO bo = new OrderDetailBO();
+        if(null == orderDetailDO){
+            return bo;
+        }
+        bo.setGoodsId(orderDetailDO.getGoodsId()+"");
+        bo.setNumber(orderDetailDO.getNumber()+"");
+        bo.setOrderId(orderDetailDO.getOrderId()+"");
+        bo.setPhone(orderDetailDO.getPhone());
+        bo.setPrice(orderDetailDO.getPrice()+"");
+        bo.setRackUuid(orderDetailDO.getRackUuid());
+        bo.setGoodsName(orderDetailDO.getGoodsName());
+        return bo;
+    }
+
+    public static List<OrderDetailBO> detailBOSFromDOS(List<OrderDetailDO> list){
+        if(CollectionUtils.isEmpty(list)){
+            return null;
+        }
+        List<OrderDetailBO> result = Lists.newArrayListWithExpectedSize(list.size());
+        for(OrderDetailDO orderDetailDO : list){
+            result.add(detailBOFromDO(orderDetailDO));
+        }
+        return result;
     }
 
     public static List<OrderDetailDO> detailDOSFromBOS(List<OrderDetailBO> list,OrderDO orderDO){
@@ -65,12 +102,23 @@ public final class OrderHelper {
         bo.setBenefitPrice(String.valueOf(orderDO.getBenefitPrice()));
         bo.setGoodsSettlePrice(String.valueOf(orderDO.getGoodsSettlePrice()));
         bo.setGoodsTotalPrice(String.valueOf(orderDO.getGoodsTotalPrice()));
-        bo.setRandomBenefitPrice(String.valueOf(orderDO.getRandomBenefitPrice()));
+        Double random = orderDO.getRandomBenefitPrice();
+        random = random == null ? 0.00 : random;
+        bo.setRandomBenefitPrice(String.valueOf(random));
         bo.setId(orderDO.getId());
+        bo.setWeixinOrderId(orderDO.getWeixinOrderId());
+        bo.setAlipayOrderId(orderDO.getAlipayOrderId());
+        boolean weixin = StringUtils.isBlank(bo.getWeixinOrderId()) || "null".equalsIgnoreCase(bo.getWeixinOrderId().trim());
+        boolean alipay = StringUtils.isBlank(bo.getAlipayOrderId()) || "null".equalsIgnoreCase(bo.getAlipayOrderId().trim());
+        if(weixin && alipay){
+            bo.setIsBalancePurchased("1");
+        } else {
+            bo.setIsBalancePurchased("0");
+        }
         bo.setPhone(orderDO.getPhone());
         bo.setRackUUID(orderDO.getRackUUID());
         bo.setOrderId(orderDO.getOrderId());
-        bo.setGmtCreated(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(orderDO.getGmtCreated()));
+        bo.setGmtCreated(DateUtil.date2Str(orderDO.getGmtCreated()));
         return bo;
     }
 

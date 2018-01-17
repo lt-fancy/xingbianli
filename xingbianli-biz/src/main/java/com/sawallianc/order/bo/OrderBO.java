@@ -16,5 +16,9 @@ public class OrderBO extends BaseBO{
     private String benefitPrice;
     private String randomBenefitPrice;
     private String orderState;
-    private List<OrderDetailDO> details;
+    private String firstGoodsPic;
+    private String weixinOrderId;
+    private String alipayOrderId;
+    private String isBalancePurchased;
+    private List<OrderDetailBO> details;
 }

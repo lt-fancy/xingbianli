@@ -21,7 +21,7 @@ public class Constant {
     /**
      * 缓存key
      */
-    public static final String ALL_GOODS_RACK_UUID = "xingbianli-all-goods-rack:{0}";
+    public static final String ALL_GOODS_RACK_UUID = "rack-goods-info:{0}";
     public static final String ALL_RACK = "xingbianli-all-rack";
     public static final String ALL_AVAILABLE_RACK = "xingbianli-all-available-rack";
     public static final String ALL_DISABLE_RACK = "xingbianli-all-disable-rack";
@@ -29,6 +29,8 @@ public class Constant {
     public static final String STATE_SINGLE_INFO = "state-single-info:{0}:{1}";
     public static final String STATE_LIST_INFO = "state-list-info:{0}";
     public static final String ORDER_LIST_INFO = "order-list-info:{0}";
+    public static final String USER_INFO_OPENID = "user-info-openid:{0}";
+    public static final String GOODS_SINGLE_INFO = "single-goods-info:{0}";
     public enum ChargeMethod {
         ALIPAY(0,"支付宝"),
         WEIXIN(1,"微信");

@@ -36,4 +36,11 @@ public interface GoodsService {
      * @return
      */
     GoodsBO queryGoodsByEanCode(String goodsEanCode,String rackUUid);
+
+    /**
+     * 通过id获取商品详情
+     * @param id
+     * @return
+     */
+    GoodsBO getGoodsById(Long id);
 }

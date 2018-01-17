@@ -64,6 +64,9 @@ public class GoodsServiceImpl implements GoodsService{
                 }
             }
             GoodsVO vo = new GoodsVO();
+            if(CollectionUtils.isEmpty(innerList)){
+                continue;
+            }
             vo.setName(stateBO.getStateName());
             vo.setType(String.valueOf(++i));
             vo.setGoods(innerList);
@@ -125,7 +128,20 @@ public class GoodsServiceImpl implements GoodsService{
         if(StringUtils.isBlank(rackUUid)){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"rackUUid must not be blank while query goods info by goods ean code");
         }
-        return goodsHelper.boFromDo(goodsDAO.queryGoodsByEanCode(goodsEanCode,rackUUid));
+		GoodsBO bo = goodsHelper.boFromDo(goodsDAO.queryGoodsByEanCode(goodsEanCode,rackUUid));
+        return bo == null?new GoodsBO():bo;
+    }
+
+    @Override
+    public GoodsBO getGoodsById(Long id) {
+        String key = CacheUtil.generateCacheKey(Constant.GOODS_SINGLE_INFO,id);
+        GoodsBO result = redisValueOperations.get(key,GoodsBO.class);
+        if(null != result){
+            return result;
+        }
+        result = goodsHelper.boFromDo(goodsDAO.getGoodsById(id));
+        redisValueOperations.set(key,result,86400L);
+        return result;
     }
 
 }

@@ -9,9 +9,9 @@ import com.google.common.collect.Lists;
 import com.sawallianc.annotation.ChargeLogAnnotation;
 import com.sawallianc.common.CacheUtil;
 import com.sawallianc.common.Constant;
-import com.sawallianc.common.OrderIdUtil;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
+import com.sawallianc.order.bo.OrderBO;
 import com.sawallianc.order.bo.OrderVO;
 import com.sawallianc.order.service.OrderService;
 import com.sawallianc.order.vo.DiscountVO;
@@ -34,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -82,7 +81,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public DiscountVO purchase(BalanceVO balanceVO) {
+    public OrderBO purchase(BalanceVO balanceVO) {
         if(null == balanceVO){
             throw new BizRuntimeException(ResultCode.ERROR,"balanceVO is null");
         }
@@ -106,14 +105,13 @@ public class UserServiceImpl implements UserService{
         boolean flag = this.withhold(balanceVO);
         OrderVO orderVO = new OrderVO();
         orderVO.setGoodsSettlePrice(discountVO.getSettlePrice());
-        orderVO.setBenefitPrice(UserHelper.keep2Decimal(balanceVO.getTotalPrice()-orderVO.getGoodsSettlePrice()));
         orderVO.setGoodsTotalPrice(balanceVO.getTotalPrice());
         orderVO.setRackUUID(balanceVO.getRackUuid());
+        orderVO.setBenefitPrice(balanceVO.getBenefitPrice());
         orderVO.setPhone(phone);
         orderVO.setJson(balanceVO.getJson());
         orderVO.setRandomBenefitPrice(discountVO.getDiscount());
-        orderService.makeOrder(orderVO, OrderIdUtil.getOrderId(),1);
-        return discountVO;
+        return orderService.makeOrder(orderVO,1);
     }
 
     @Override
@@ -143,7 +141,8 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserBO queryUserInfoByOpenid(String openid) {
-        return UserHelper.boFromDo(userDAO.queryUserByType(3,openid));
+        UserBO user = UserHelper.boFromDo(userDAO.queryUserByType(3,openid));
+        return user;
     }
 
     @Override
@@ -176,8 +175,12 @@ public class UserServiceImpl implements UserService{
         UserBO exists = this.queryUserInfoByPhone(phone);
         //todo 暂时不知道微信openid和Alipayid会不会重复
         if(null != exists){
-            //说明该手机号已注册
-            throw new BizRuntimeException(ResultCode.PHONE_ALREADY_REGISTERED,"phone already registered");
+            if(exists.getOpenid().equalsIgnoreCase(userBO.getOpenid())){
+                return exists;
+            } else {
+                //说明该手机号已注册
+                throw new BizRuntimeException(ResultCode.PHONE_ALREADY_REGISTERED,"phone already registered");
+            }
         }
         userDAO.addUser(UserHelper.doFromBo(userBO));
         userBO.setBalance("0.00");
@@ -203,9 +206,13 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public String sendCheckCode(String phone) {
+    public String sendCheckCode(String phone,String openid) {
         if(StringUtils.isBlank(phone)){
             throw new BizRuntimeException(ResultCode.BLANK_MOBILE,"phone is blank while register");
+        }
+        String cache = redisValueOperations.get(phone+openid);
+        if(StringUtils.isNotBlank(cache)){
+            throw new BizRuntimeException(ResultCode.SEND_CODE_TOO_FREQUENTLY,"phone is request checkcode too frequently");
         }
         Random random = new Random();
         String code = String.valueOf(random.nextInt(8999)+1000);
@@ -220,6 +227,8 @@ public class UserServiceImpl implements UserService{
             JSONObject jsonCache = new JSONObject();
             jsonCache.put("checkcode",code);
             redisValueOperations.set(key,jsonCache,10*60);
+            //防止前端不拦住60s获取验证码
+            redisValueOperations.set(phone+openid,phone,60);
             return code;
         } catch (Exception e) {
             throw new BizRuntimeException(ResultCode.SEND_CODE_ERROR_HAPPEN,"error occured while send checkcode"+e);

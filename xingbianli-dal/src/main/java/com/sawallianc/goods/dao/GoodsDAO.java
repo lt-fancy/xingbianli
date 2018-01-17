@@ -26,4 +26,11 @@ public interface GoodsDAO {
      * @return
      */
     GoodsDO queryGoodsByEanCode(@Param("eanCode")String eanCode,@Param("rackUUid")String rackUUid);
+
+    /**
+     * 通过id获取商品详情
+     * @param id
+     * @return
+     */
+    GoodsDO getGoodsById(@Param("id")Long id);
 }

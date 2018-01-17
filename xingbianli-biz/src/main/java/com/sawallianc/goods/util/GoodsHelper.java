@@ -23,6 +23,7 @@ public class GoodsHelper {
             return null;
         }
         GoodsBO bo = new GoodsBO();
+        bo.setId(goodsDO.getId());
         bo.setGoodsCategoryName(stateService.findStateByEnameAndStateId(Constant.GOODS_CATEGORY_ENAME,goodsDO.getGoodsCategory()).getStateName());
         bo.setGoodsCategory(String.valueOf(goodsDO.getGoodsCategory()));
         bo.setGoodsDiscount(String.valueOf(goodsDO.getGoodsDiscount()));

@@ -13,5 +13,7 @@ public class OrderDO extends BaseDO{
     private Double benefitPrice;
     private Double randomBenefitPrice;
     private Integer orderState;
+    private String weixinOrderId;
+    private String alipayOrderId;
 
 }

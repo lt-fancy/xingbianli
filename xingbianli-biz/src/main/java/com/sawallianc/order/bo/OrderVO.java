@@ -11,4 +11,5 @@ public class OrderVO {
     private Double benefitPrice;
     private Double randomBenefitPrice;
     private String json;
+    private String orderId;
 }

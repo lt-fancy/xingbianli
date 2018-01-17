@@ -14,6 +14,8 @@
         <result property="randomBenefitPrice" column="random_benefit_price"/>
         <result property="orderState" column="order_state"/>
         <result property="isDeleted" column="is_deleted"/>
+        <result property="weixinOrderId" column="weixin_order_id"/>
+        <result property="alipayOrderId" column="alipay_order_id"/>
         <result property="gmtCreated" column="gmt_created"/>
         <result property="gmtModified" column="gmt_modified"/>
     </resultMap>
@@ -30,7 +32,7 @@
     </resultMap>
 
     <sql id="baseSql">
-        id,order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,random_benefit_price,order_state,is_deleted,gmt_created,gmt_modified
+        id,order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,random_benefit_price,order_state,is_deleted,weixin_order_id,alipay_order_id,gmt_created,gmt_modified
     </sql>
 
     <sql id="detailSql">

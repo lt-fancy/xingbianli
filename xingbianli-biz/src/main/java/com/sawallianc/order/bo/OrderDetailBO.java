@@ -10,4 +10,5 @@ public class OrderDetailBO {
     private String price;
     private String phone;
     private String rackUuid;
+    private String goodsName;
 }
