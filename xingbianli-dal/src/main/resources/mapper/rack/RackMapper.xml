@@ -44,4 +44,14 @@
         where uuid = #{uuid}
         order by gmt_modified desc;
     </select>
+
+    <insert id="apply" parameterType="com.sawallianc.rack.module.RackApplyDO">
+        insert into rack_apply_info
+        (city_name, company_name, company_address, contact_name, contact_phone, company_crew_number, referee_phone, gmt_created)
+        VALUES (#{cityName},#{companyName},#{companyAddress},#{contactName},#{contactPhone},#{companyCrewNumber},#{refereePhone},now())
+    </insert>
+
+    <select id="getRackApplyCity" resultType="java.lang.String">
+        select city_name from rack_apply_city_info where is_deleted = 0
+    </select>
 </mapper>

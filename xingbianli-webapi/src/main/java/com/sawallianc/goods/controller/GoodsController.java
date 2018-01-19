@@ -26,7 +26,7 @@ public class GoodsController {
     public Result getGoodsByRackUUID(@PathVariable String uuid){
         List<GoodsVO> result = goodsService.findGoodsByRackUUId(uuid);
         if(CollectionUtils.isEmpty(result)){
-            throw new BizRuntimeException(ResultCode.RACK_HAS_BEEN_DOWN,"rack has been down");
+            return Result.buildResult(ResultCode.RACK_HAS_BEEN_DOWN);
         }
         return Result.getSuccessResult(result);
     }
