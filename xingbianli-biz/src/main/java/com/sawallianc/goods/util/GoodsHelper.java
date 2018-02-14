@@ -41,10 +41,18 @@ public class GoodsHelper {
             }
             String goodsTag = sb.toString();
             bo.setGoodsTag(goodsTag.substring(0,goodsTag.length()-1));
+        } else {
+            bo.setGoodsTag("");
         }
         bo.setGoodsName(goodsDO.getGoodsName());
         bo.setGoodsUri(goodsDO.getGoodsUri());
         bo.setGoodsEanCode(goodsDO.getGoodsEanCode());
+        Integer randomDiscount = goodsDO.getIsRandomDiscount();
+        if(null == randomDiscount){
+            bo.setIsRandomDiscount(0);
+        } else {
+            bo.setIsRandomDiscount(randomDiscount);
+        }
         return bo;
     }
 

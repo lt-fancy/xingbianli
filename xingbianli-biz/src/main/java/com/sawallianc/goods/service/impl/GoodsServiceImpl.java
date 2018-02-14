@@ -50,11 +50,10 @@ public class GoodsServiceImpl implements GoodsService{
         if(CollectionUtils.isEmpty(list)){
             throw new BizRuntimeException(ResultCode.RACK_HAS_BEEN_DOWN,"rack has been down");
         }
-        List<StateBO> states = stateService.findChildrenStateByEname(Constant.GOODS_CATEGORY_ENAME);
+        List<StateBO> states = stateService.findChildrenStateByEnameWithAscOrder(Constant.GOODS_CATEGORY_ENAME);
         if(CollectionUtils.isEmpty(states)){
-            throw new BizRuntimeException(ResultCode.ERROR,"goods category is not configured");
+            throw new BizRuntimeException(ResultCode.ERROR,"goods category is not ");
         }
-        List<GoodsBO> allGoods = Lists.newArrayListWithExpectedSize(100);
         int i = 0;
         for(StateBO stateBO : states) {
             List<GoodsBO> innerList = Lists.newArrayListWithExpectedSize(20);
@@ -72,13 +71,6 @@ public class GoodsServiceImpl implements GoodsService{
             vo.setGoods(innerList);
             result.add(vo);
         }
-        for(GoodsVO vo : result){
-            allGoods.addAll(vo.getGoods());
-        }
-        GoodsVO vo = new GoodsVO();
-        vo.setName("全部商品");
-        vo.setGoods(allGoods);
-        result.add(vo);
         redisValueOperations.set(key,result);
         return result;
     }
@@ -113,11 +105,16 @@ public class GoodsServiceImpl implements GoodsService{
         if(null == idArray || idArray.length == 0){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"goodsIds:"+goodsIds+" does not have a correct format,must have a ','");
         }
-        List<Integer> idList = Lists.newArrayListWithCapacity(idArray.length);
+        List<Long> idList = Lists.newArrayListWithCapacity(idArray.length);
         for(String id : idArray){
-            idList.add(Integer.parseInt(id));
+            idList.add(Long.parseLong(id));
         }
         return goodsHelper.bosFromDos(goodsDAO.queryGoodsByGoodsId(idList));
+    }
+
+    @Override
+    public List<GoodsBO> queryGoodsByGoodsId(List<Long> goodsIds) {
+        return goodsHelper.bosFromDos(goodsDAO.queryGoodsByGoodsId(goodsIds));
     }
 
     @Override

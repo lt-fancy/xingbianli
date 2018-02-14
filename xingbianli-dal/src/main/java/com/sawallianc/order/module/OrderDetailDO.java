@@ -11,5 +11,7 @@ public class OrderDetailDO {
     private Integer number;
     private Double price;
     private String phone;
+    private String openid;
+    private String alipayid;
     private String rackUuid;
 }

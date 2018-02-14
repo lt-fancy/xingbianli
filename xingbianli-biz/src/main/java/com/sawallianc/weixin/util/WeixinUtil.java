@@ -3,6 +3,7 @@ package com.sawallianc.weixin.util;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.sawallianc.weixin.bo.WeixinUnionOrderBO;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.security.MessageDigest;
@@ -76,6 +77,11 @@ public class WeixinUtil {
         sb.append("<appid><![CDATA[");
         sb.append(bo.getAppid());
         sb.append("]]></appid>");
+        if(StringUtils.isNotBlank(bo.getAttach())){
+            sb.append("<attach><![CDATA[");
+            sb.append(bo.getAttach());
+            sb.append("]]></attach>");
+        }
         sb.append("<body><![CDATA[");
         sb.append(bo.getBody());
         sb.append("]]></body>");
@@ -141,7 +147,7 @@ public class WeixinUtil {
                 Object obj = field.get(object);
                 String name = field.getName();
                 if(null != obj){
-                    if("timeStamp".equalsIgnoreCase(name) || "payType".equalsIgnoreCase(name)){
+                    if("timeStamp".equalsIgnoreCase(name) || "payType".equalsIgnoreCase(name) || "phone".equalsIgnoreCase(name)){
                         continue;
                     }
                     if(1==type){

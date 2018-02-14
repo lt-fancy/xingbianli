@@ -7,6 +7,8 @@ import lombok.Data;
 public class OrderDO extends BaseDO{
     private String orderId;
     private String phone;
+    private String openid;
+    private String alipayid;
     private String rackUUID;
     private Double goodsTotalPrice;
     private Double goodsSettlePrice;

@@ -16,4 +16,5 @@ public class GoodsDO extends BaseDO{
     private Integer isSpecialPrice;
     private Integer isLimited;
     private Integer goodsNumber;
+    private Integer isRandomDiscount;
 }

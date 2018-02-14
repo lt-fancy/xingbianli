@@ -254,7 +254,7 @@ public class QRCodeUtil {
     }
 
     public static void main(String[] args) throws Exception{
-        String text = "https://h5.ljlhz.com/rack/a31aa99e-6792-43f0-aaf3-2df2f372a7cf";
+        String text = "https://h5.ljlhz.com/api/alipay/toPay?total_amount=0.01&subject=零距狸-商品支付";
         FileOutputStream fos = new FileOutputStream(new File("C:/new.png"));
         QRCodeUtil.encode(text,"C:\\64.jpg",fos,true);
 //        UUID uuid = UUID.randomUUID();

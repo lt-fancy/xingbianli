@@ -31,4 +31,20 @@
         where ename=#{ename}
         and is_deleted=0
     </select>
+
+    <select id="findChildrenStateByEnameWithAscOrder" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from state_info
+        where ename=#{ename}
+        and is_deleted=0
+        order by order_seq asc
+    </select>
+
+    <select id="findChildrenStateByEnameWithDescOrder" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from state_info
+        where ename=#{ename}
+        and is_deleted=0
+        order by order_seq desc
+    </select>
 </mapper>

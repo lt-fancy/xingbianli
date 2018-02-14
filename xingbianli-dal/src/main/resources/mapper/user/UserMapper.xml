@@ -54,4 +54,12 @@
         gmt_modified=now()
         where phone=#{phone}
     </update>
+
+    <update id="updateWeixin">
+        update user_info set openid=#{openid} where phone=#{phone}
+    </update>
+
+    <update id="updateAlipay">
+        update user_info set alipayid=#{alipayId} where phone=#{phone}
+    </update>
 </mapper>

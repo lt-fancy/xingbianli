@@ -18,4 +18,5 @@ public class GoodsBO extends BaseBO{
     private String goodsNumber;
     private String goodsTag;
     private String goodsEanCode;
+    private Integer isRandomDiscount;
 }

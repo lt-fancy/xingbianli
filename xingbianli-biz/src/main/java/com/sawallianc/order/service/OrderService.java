@@ -14,9 +14,21 @@ public interface OrderService {
 
     List<OrderBO> queryOrderInfoByOpenid(String openid);
 
-    int updateOrderState2Succeed(String orderId,String weixinOrderId);
+    List<OrderBO> queryOrderInfoByAlipayId(String alipayId);
+
+    OrderBO getOrderByOrderNo(String orderNo);
+
+    int updateOrderState2SucceedWeixin(String orderId,String weixinOrderId,String phone);
+
+    int updateOrderState2SucceedAlipay(String orderId,String alipayOrderId,String phone);
 
     Integer queryIfDealtWeixin(String weixin);
+
+    Integer queryIfDealtAlipay(String alipay);
+
+    Integer queryIfNotifyAlipay(String notifyId);
+
+    int insertAlipayNotify(String notifyId);
 
     List<OrderDetailDO> queryOrderDetailByOrderId(String orderId);
 }

@@ -9,5 +9,9 @@ public interface StateDAO {
 
     StateDO findStateByEnameAndStateId(@Param("ename")String ename,@Param("stateId")Integer stateId);
 
+    List<StateDO> findChildrenStateByEnameWithAscOrder(@Param("ename")String ename);
+
+    List<StateDO> findChildrenStateByEnameWithDescOrder(@Param("ename")String ename);
+
     List<StateDO> findChildrenStateByEname(@Param("ename")String ename);
 }

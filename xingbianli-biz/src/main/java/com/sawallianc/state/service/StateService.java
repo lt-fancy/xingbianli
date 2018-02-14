@@ -8,4 +8,8 @@ public interface StateService {
     StateBO findStateByEnameAndStateId(String ename,Integer stateId);
 
     List<StateBO> findChildrenStateByEname(String ename);
+
+    List<StateBO> findChildrenStateByEnameWithAscOrder(String ename);
+
+    List<StateBO> findChildrenStateByEnameWithDescOrder(String ename);
 }

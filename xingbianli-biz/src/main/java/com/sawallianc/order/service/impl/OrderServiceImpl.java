@@ -51,27 +51,42 @@ public class OrderServiceImpl implements OrderService{
         if(null == orderVO.getBenefitPrice() || null == orderVO.getGoodsSettlePrice() || null == orderVO.getGoodsTotalPrice()){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"orderVO price is null while insert order");
         }
-        if(StringUtils.isBlank(orderVO.getPhone()) || StringUtils.isBlank(orderVO.getRackUUID())){
-            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"phone or rackUUid is blank while insert order");
-        }
         String json = orderVO.getJson();
         if(StringUtils.isBlank(json)){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"order detail is blank while insert order");
         }
         OrderDO orderDO = OrderHelper.doFromVo(orderVO);
         orderDO.setOrderState(orderState);
+        Date now = new Date();
+        orderDO.setGmtCreated(now);
+        if(1 == orderState){
+            orderDO.setGmtModified(now);
+        }
         orderDAO.makeOrder(orderDO);
-        orderDO.setGmtCreated(new Date());
         List<OrderDetailBO> details = JSONArray.parseArray(json, OrderDetailBO.class);
         if(CollectionUtils.isEmpty(details)){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"order detail list is empty after parse json");
         }
         orderDAO.makeOrderDetail(OrderHelper.detailDOSFromBOS(details,orderDO));
-        String key = CacheUtil.generateCacheKey(Constant.ORDER_LIST_INFO,orderVO.getPhone());
-        redisValueOperations.delete(key);
         OrderBO result = OrderHelper.boFromDo(orderDO);
         result.setDetails(details);
+        String key = CacheUtil.generateCacheKey(Constant.ORDER_LIST_INFO,
+                returnNotBlank(orderVO.getOpenid(),orderVO.getAlipayid(),orderVO.getPhone()));
+        redisValueOperations.delete(key);
         return result;
+    }
+
+    private String returnNotBlank(String openid,String alipayid,String phone){
+        if(StringUtils.isNotBlank(phone)){
+            return phone;
+        }
+        if(StringUtils.isNotBlank(openid)){
+            return openid;
+        }
+        if(StringUtils.isNotBlank(alipayid)){
+            return alipayid;
+        }
+        throw new BizRuntimeException(ResultCode.ERROR,"openid phone alipayid can't both be blank");
     }
 
     @Override
@@ -84,22 +99,12 @@ public class OrderServiceImpl implements OrderService{
         if(CollectionUtils.isNotEmpty(orderList)){
             return orderList;
         }
-        orderList = OrderHelper.bosFromDos(orderDAO.queryOrderInfo(phone));
+        orderList = OrderHelper.bosFromDos(orderDAO.queryOrderInfoByPhone(phone));
         if(CollectionUtils.isEmpty(orderList)){
             return Lists.newArrayList();
         }
         List<OrderDetailDO> details = orderDAO.queryOrderDetailInfoByPhone(phone);
-        for(OrderBO bo : orderList){
-            List<OrderDetailDO> inner = Lists.newArrayList();
-            for(OrderDetailDO detail : details){
-                if(bo.getId().equals(detail.getOrderId())){
-                    inner.add(detail);
-                    bo.setFirstGoodsPic(goodsService.getGoodsById(detail.getGoodsId()).getGoodsUri());
-                }
-            }
-            bo.setDetails(OrderHelper.detailBOSFromDOS(inner));
-        }
-
+        generateOrderDetail(orderList,details);
         redisValueOperations.set(key,orderList,3600L);
         return orderList;
     }
@@ -107,27 +112,121 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public List<OrderBO> queryOrderInfoByOpenid(String openid) {
         if(StringUtils.isBlank(openid)){
-            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter openid is blank while querying order info");
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter openid is blank while query order info");
         }
         UserBO user = userService.queryUserInfoByOpenid(openid);
-        if(null == user){
-            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter openid can't find correct user info");
+        if(null != user && StringUtils.isNotBlank(user.getPhone())){
+            return this.queryOrderInfoByPhone(user.getPhone());
         }
-        String phone = user.getPhone();
-        if(StringUtils.isBlank(phone)){
-            throw new BizRuntimeException(ResultCode.ERROR,"request parameter openid find user info does not have phone");
+        String key = CacheUtil.generateCacheKey(Constant.ORDER_LIST_INFO,openid);
+        List<OrderBO> orderList = redisValueOperations.getArray(key,OrderBO.class);
+        if(CollectionUtils.isNotEmpty(orderList)){
+            return orderList;
         }
-        return this.queryOrderInfoByPhone(phone);
+        orderList = OrderHelper.bosFromDos(orderDAO.queryOrderInfoByOpenid(openid));
+        if(CollectionUtils.isEmpty(orderList)){
+            return Lists.newArrayList();
+        }
+        List<OrderDetailDO> details = orderDAO.queryOrderDetailInfoByOpenid(openid);
+        generateOrderDetail(orderList,details);
+        redisValueOperations.set(key,orderList,3600L);
+        return orderList;
     }
 
     @Override
-    public int updateOrderState2Succeed(String orderId,String weixinOrderId) {
-        return orderDAO.updateOrderState2Succeed(orderId,weixinOrderId);
+    public List<OrderBO> queryOrderInfoByAlipayId(String alipayId) {
+        if(StringUtils.isBlank(alipayId)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter alipayId is blank while query order info");
+        }
+        UserBO user = userService.queryUserInfoByAlipayId(alipayId);
+        if(null != user && StringUtils.isNotBlank(user.getPhone())){
+            return this.queryOrderInfoByPhone(user.getPhone());
+        }
+        String key = CacheUtil.generateCacheKey(Constant.ORDER_LIST_INFO,alipayId);
+        List<OrderBO> orderList = redisValueOperations.getArray(key,OrderBO.class);
+        if(CollectionUtils.isNotEmpty(orderList)){
+            return orderList;
+        }
+        orderList = OrderHelper.bosFromDos(orderDAO.queryOrderInfoByAlipayId(alipayId));
+        if(CollectionUtils.isEmpty(orderList)){
+            return Lists.newArrayList();
+        }
+        List<OrderDetailDO> details = orderDAO.queryOrderDetailInfoByAlipayId(alipayId);
+        generateOrderDetail(orderList,details);
+        redisValueOperations.set(key,orderList,3600L);
+        return orderList;
+    }
+
+    private void generateOrderDetail(List<OrderBO> orderList,List<OrderDetailDO> details){
+        for(OrderBO bo : orderList){
+            List<OrderDetailDO> inner = Lists.newArrayList();
+            int number = 0;
+            for(OrderDetailDO detail : details){
+                if(bo.getId().equals(detail.getOrderId())){
+                    inner.add(detail);
+                    number += detail.getNumber();
+                    bo.setFirstGoodsPic(goodsService.getGoodsById(detail.getGoodsId()).getGoodsUri());
+                }
+            }
+            bo.setOrderNum(number);
+            bo.setDetails(OrderHelper.detailBOSFromDOS(inner));
+        }
+    }
+
+    @Override
+    public OrderBO getOrderByOrderNo(String orderNo) {
+        return OrderHelper.boFromDo(orderDAO.getOrderByOrderNo(orderNo));
+    }
+
+    @Override
+    public int updateOrderState2SucceedWeixin(String orderId,String weixinOrderId,String value) {
+        int result = orderDAO.updateOrderState2SucceedWeixin(orderId,weixinOrderId);
+        if(StringUtils.isBlank(value)){
+            this.batchDeleteCache();
+            return result;
+        }
+        String key = CacheUtil.generateCacheKey(Constant.ORDER_LIST_INFO,value);
+        redisValueOperations.delete(key);
+        return result;
+    }
+
+    private void batchDeleteCache(){
+        List<String> keys = redisValueOperations.keys(Constant.ORDER_LIST_INFO+"*");
+        for(String value : keys){
+            redisValueOperations.delete(value);
+        }
+    }
+
+    @Override
+    public int updateOrderState2SucceedAlipay(String orderId,String alipayOrderId,String value) {
+        int result =  orderDAO.updateOrderState2SucceedAlipay(orderId,alipayOrderId);
+        if(StringUtils.isBlank(value)){
+            this.batchDeleteCache();
+            return result;
+        }
+        String key = CacheUtil.generateCacheKey(Constant.ORDER_LIST_INFO,value);
+        redisValueOperations.delete(key);
+        return result;
     }
 
     @Override
     public Integer queryIfDealtWeixin(String weixin) {
         return orderDAO.queryIfDealtWeixin(weixin);
+    }
+
+    @Override
+    public Integer queryIfDealtAlipay(String alipay) {
+        return orderDAO.queryIfDealtAlipay(alipay);
+    }
+
+    @Override
+    public Integer queryIfNotifyAlipay(String notifyId) {
+        return orderDAO.queryIfNotifyAlipay(notifyId);
+    }
+
+    @Override
+    public int insertAlipayNotify(String notifyId) {
+        return orderDAO.insertAlipayNotify(notifyId);
     }
 
     @Override

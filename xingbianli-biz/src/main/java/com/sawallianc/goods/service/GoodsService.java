@@ -30,6 +30,14 @@ public interface GoodsService {
     List<GoodsBO> queryGoodsByGoodsId(String goodsIds);
 
     /**
+     * 去待支付页面需要重新请求接口，不能从首页直接带值过来
+     * 前端会传递客户购物车里面的goodsId集合，用英文逗号分隔
+     * @param goodsIds
+     * @return
+     */
+    List<GoodsBO> queryGoodsByGoodsId(List<Long> goodsIds);
+
+    /**
      * 通过扫码获取商品详情
      * @param goodsEanCode
      * @param rackUUid

@@ -13,6 +13,8 @@
         <result property="benefitPrice" column="benefit_price"/>
         <result property="randomBenefitPrice" column="random_benefit_price"/>
         <result property="orderState" column="order_state"/>
+        <result property="openid" column="openid"/>
+        <result property="alipayid" column="alipayid"/>
         <result property="isDeleted" column="is_deleted"/>
         <result property="weixinOrderId" column="weixin_order_id"/>
         <result property="alipayOrderId" column="alipay_order_id"/>
@@ -28,31 +30,33 @@
         <result property="number" column="goods_number"/>
         <result property="price" column="price"/>
         <result property="phone" column="phone"/>
+        <result property="openid" column="openid"/>
+        <result property="alipayid" column="alipayid"/>
         <result property="rackUuid" column="rack_uuid"/>
     </resultMap>
 
     <sql id="baseSql">
-        id,order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,random_benefit_price,order_state,is_deleted,weixin_order_id,alipay_order_id,gmt_created,gmt_modified
+        id,order_id,openid,alipayid,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,random_benefit_price,order_state,is_deleted,weixin_order_id,alipay_order_id,gmt_created,gmt_modified
     </sql>
 
     <sql id="detailSql">
-        id,order_id,goods_id,goods_number,price,phone,rack_uuid
+        id,order_id,openid,alipayid,goods_id,goods_number,price,phone,rack_uuid
     </sql>
 
     <insert id="makeOrder" parameterType="com.sawallianc.order.module.OrderDO" useGeneratedKeys="true" keyProperty="id">
-        insert into order_info(order_id,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,random_benefit_price,order_state,is_deleted,gmt_created)values
-        (#{orderId},#{phone},#{rackUUID},#{goodsTotalPrice},#{goodsSettlePrice},#{benefitPrice},#{randomBenefitPrice},#{orderState},0,now())
+        insert into order_info(order_id,openid,alipayid,phone_number,rack_uuid,goods_total_price,goods_settle_price,benefit_price,random_benefit_price,order_state,is_deleted,gmt_created,gmt_modified)values
+        (#{orderId},#{openid},#{alipayid},#{phone},#{rackUUID},#{goodsTotalPrice},#{goodsSettlePrice},#{benefitPrice},#{randomBenefitPrice},#{orderState},0,#{gmtCreated},#{gmtModified})
     </insert>
 
     <insert id="makeOrderDetail" parameterType="java.util.List">
-        insert into order_details(order_id, goods_id, goods_number, price,phone,rack_uuid)
+        insert into order_details(order_id, goods_id, goods_number, price,phone,rack_uuid,openid,alipayid)
         VALUES
         <foreach collection="list" item="item" separator=",">
-            (#{item.orderId},#{item.goodsId},#{item.number},#{item.price},#{item.phone},#{item.rackUuid})
+            (#{item.orderId},#{item.goodsId},#{item.number},#{item.price},#{item.phone},#{item.rackUuid},#{item.openid},#{item.alipayid})
         </foreach>
     </insert>
 
-    <select id="queryOrderInfo" resultMap="baseMap">
+    <select id="queryOrderInfoByPhone" resultMap="baseMap">
         select <include refid="baseSql"/>
         from order_info
         where phone_number=#{phone}
@@ -60,16 +64,48 @@
         order by gmt_created desc
     </select>
 
+    <select id="queryOrderInfoByOpenid" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from order_info
+        where openid=#{openid}
+        and order_state = 1
+        order by gmt_created desc
+    </select>
+
+    <select id="queryOrderInfoByAlipayId" resultMap="baseMap">
+        select <include refid="baseSql"/>
+        from order_info
+        where alipayid=#{alipayid}
+        and order_state = 1
+        order by gmt_created desc
+    </select>
+
     <select id="queryOrderDetailInfoByPhone" resultMap="detailMap">
-        select a.id,a.order_id,a.goods_id,a.goods_number,a.price,a.phone,a.rack_uuid,b.goods_name
+        select a.id,a.openid,a.alipayid,a.order_id,a.goods_id,a.goods_number,a.price,a.phone,a.rack_uuid,b.goods_name
         from order_details a,goods_info b
         where a.phone=#{phone}
         and a.goods_id=b.id
         order by a.price desc
     </select>
 
+    <select id="queryOrderDetailInfoByOpenid" resultMap="detailMap">
+        select a.id,a.openid,a.alipayid,a.order_id,a.goods_id,a.goods_number,a.price,a.phone,a.rack_uuid,b.goods_name
+        from order_details a,goods_info b
+        where a.openid=#{openid}
+        and a.goods_id=b.id
+        order by a.price desc
+    </select>
+
+    <select id="queryOrderDetailInfoByAlipayId" resultMap="detailMap">
+        select a.id,a.openid,a.alipayid,a.order_id,a.goods_id,a.goods_number,a.price,a.phone,a.rack_uuid,b.goods_name
+        from order_details a,goods_info b
+        where a.alipayid=#{alipayid}
+        and a.goods_id=b.id
+        order by a.price desc
+    </select>
+
     <select id="queryOrderDetailInfoByOrderId" resultMap="detailMap">
-        select a.id,a.order_id,a.goods_id,a.goods_number,a.price,a.phone,a.rack_uuid,b.goods_name
+        select a.id,a.openid,a.alipayid,a.order_id,a.goods_id,a.goods_number,a.price,a.phone,a.rack_uuid,b.goods_name
         from order_details a,goods_info b
         where a.order_id=#{orderId}
         and a.goods_id=b.id
@@ -82,8 +118,33 @@
         and order_state=1
     </select>
 
-    <update id="updateOrderState2Succeed">
-        update order_info set order_state=1,weixin_order_id=#{weixinOrderId}
+    <select id="queryIfDealtAlipay" resultType="java.lang.Integer">
+        select 1 from order_info
+        where alipay_order_id=#{alipay}
+        and order_state=1
+    </select>
+
+    <update id="updateOrderState2SucceedWeixin">
+        update order_info set order_state=1,weixin_order_id=#{weixinOrderId},gmt_modified=now()
         where order_id=#{orderId}
     </update>
+
+    <update id="updateOrderState2SucceedAlipay">
+        update order_info set order_state=1,alipay_order_id=#{alipayOrderId},gmt_modified=now()
+        where order_id=#{orderId}
+    </update>
+
+    <select id="getOrderByOrderNo" resultMap="baseMap">
+        select * from order_info
+        where order_id=#{orderNo}
+    </select>
+
+    <select id="queryIfNotifyAlipay" resultType="java.lang.Integer">
+        select 1 from alipay_notify_info
+        where alipay_notify_id = #{notifyId}
+    </select>
+
+    <insert id="insertAlipayNotify">
+        insert into alipay_notify_info(alipay_notify_id,gmt_created) values(#{notifyId},now())
+    </insert>
 </mapper>

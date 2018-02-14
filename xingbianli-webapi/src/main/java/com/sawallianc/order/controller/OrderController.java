@@ -36,6 +36,14 @@ public class OrderController extends WebApiAdvice{
         return Result.getSuccessResult(orderService.queryOrderInfoByPhone(phone));
     }
 
+    @GetMapping(value = "/queryOrderByAlipayId/{alipayId}")
+    public Result queryOrderByAlipayId(@PathVariable String alipayId){
+        if(StringUtils.isBlank(alipayId)){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"request parameter alipayId is blank while querying order info");
+        }
+        return Result.getSuccessResult(orderService.queryOrderInfoByAlipayId(alipayId));
+    }
+
     @GetMapping(value = "/queryOrderByOpenid/{openid}")
     public Result queryOrderByOpenid(@PathVariable String openid){
         if(StringUtils.isBlank(openid)){

@@ -48,4 +48,28 @@ public class StateServiceImpl implements StateService{
         redisValueOperations.set(key,result);
         return result;
     }
+
+    @Override
+    public List<StateBO> findChildrenStateByEnameWithAscOrder(String ename) {
+        String key = CacheUtil.generateCacheKey(Constant.STATE_LIST_INFO,ename);
+        List<StateBO> result = JSONArray.parseArray(redisValueOperations.get(key),StateBO.class);
+        if(CollectionUtils.isNotEmpty(result)){
+            return result;
+        }
+        result = StateHelper.bosFromDos(stateDAO.findChildrenStateByEnameWithAscOrder(ename));
+        redisValueOperations.set(key,result);
+        return result;
+    }
+
+    @Override
+    public List<StateBO> findChildrenStateByEnameWithDescOrder(String ename) {
+        String key = CacheUtil.generateCacheKey(Constant.STATE_LIST_INFO,ename);
+        List<StateBO> result = JSONArray.parseArray(redisValueOperations.get(key),StateBO.class);
+        if(CollectionUtils.isNotEmpty(result)){
+            return result;
+        }
+        result = StateHelper.bosFromDos(stateDAO.findChildrenStateByEnameWithDescOrder(ename));
+        redisValueOperations.set(key,result);
+        return result;
+    }
 }

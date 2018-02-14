@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class WeixinUnionOrderBO extends OrderVO {
     private String appid;
+    private String attach;
     private String mch_id;
     private String nonce_str;
     private String sign;
@@ -18,4 +19,5 @@ public class WeixinUnionOrderBO extends OrderVO {
     private Integer total_fee;
     private String timeStamp;
     private String payType;
+    private String phone;
 }

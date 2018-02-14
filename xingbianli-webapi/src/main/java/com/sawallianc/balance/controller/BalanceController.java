@@ -5,6 +5,7 @@ import com.sawallianc.common.Constant;
 import com.sawallianc.entity.Result;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
+import com.sawallianc.springboot.advice.WebApiAdvice;
 import com.sawallianc.state.bo.StateBO;
 import com.sawallianc.state.service.StateService;
 import com.sawallianc.user.service.UserService;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/balance")
-public class BalanceController {
+public class BalanceController extends WebApiAdvice {
 
     @Autowired
     private UserService userService;
@@ -69,11 +70,6 @@ public class BalanceController {
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"settlePrice or totalPrice or benefitPrice is null while purchasing");
         }
         return Result.getSuccessResult(userService.purchase(vo));
-    }
-
-    @PostMapping(value = "/withhold")
-    public Result withhold(@RequestBody BalanceVO vo){
-        return Result.getSuccessResult(userService.withhold(vo));
     }
 
     @GetMapping(value = "/getChargeAmountConfig")

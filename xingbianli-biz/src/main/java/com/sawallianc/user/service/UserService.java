@@ -31,10 +31,11 @@ public interface UserService {
 
     /**
      * 只做扣款处理，目的是为和下单分开
-     * @param balanceVO
+     * @param phone
+     * @param price
      * @return
      */
-    boolean withhold(BalanceVO balanceVO);
+    boolean withhold(String phone, Double price);
 
     /**
      * 根据微信openid查找用户信息
@@ -65,9 +66,11 @@ public interface UserService {
     /**
      * 发送验证码
      * @param phone
+     * @param alipayId
+     * @param openid
      * @return
      */
-    String sendCheckCode(String phone,String openid);
+    String sendCheckCode(String phone,String openid,String alipayId);
 
     /**
      * 群发短信
@@ -76,7 +79,9 @@ public interface UserService {
      */
     String batchSend(Integer id);
 
-    boolean recordChargeSucceed(String recordId);
+    boolean recordChargeSucceed(String recordId,int type);
 
     Integer queryIfRecordWeixinOrderId(String weixin);
+
+    Integer queryIfRecordAlipayOrderId(String alipay);
 }

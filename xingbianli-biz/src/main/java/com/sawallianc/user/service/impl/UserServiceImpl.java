@@ -1,17 +1,22 @@
 package com.sawallianc.user.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.qcloudsms.SmsMultiSender;
 import com.github.qcloudsms.SmsMultiSenderResult;
 import com.github.qcloudsms.SmsSingleSender;
 import com.github.qcloudsms.SmsSingleSenderResult;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.sawallianc.annotation.ChargeLogAnnotation;
 import com.sawallianc.common.CacheUtil;
 import com.sawallianc.common.Constant;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
+import com.sawallianc.goods.bo.GoodsBO;
+import com.sawallianc.goods.service.GoodsService;
 import com.sawallianc.order.bo.OrderBO;
+import com.sawallianc.order.bo.OrderDetailBO;
 import com.sawallianc.order.bo.OrderVO;
 import com.sawallianc.order.service.OrderService;
 import com.sawallianc.order.vo.DiscountVO;
@@ -29,13 +34,16 @@ import com.sawallianc.user.service.UserService;
 import com.sawallianc.user.util.UserHelper;
 import com.sawallianc.user.vo.BalanceVO;
 import com.sawallianc.weixin.cons.WexinConstant;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @Service
@@ -57,6 +65,9 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private SmsService smsService;
+
+    @Autowired
+    private GoodsService goodsService;
 
     @Autowired
     private RedisValueOperations redisValueOperations;
@@ -101,10 +112,38 @@ public class UserServiceImpl implements UserService{
             throw new BizRuntimeException(ResultCode.ERROR,"phone is blank while purchasing");
         }
         List<StateBO> list = stateService.findChildrenStateByEname(Constant.RANDOM_DISCOUNT);
-        DiscountVO discountVO = UserHelper.randomDiscount(list,price);
-        boolean flag = this.withhold(balanceVO);
+        List<OrderDetailBO> details = JSONArray.parseArray(balanceVO.getJson(), OrderDetailBO.class);
+        List<Long> goodIds = Lists.newArrayListWithCapacity(details.size());
+        Map<Long,BigDecimal> map = Maps.newHashMapWithExpectedSize(details.size());
+        for(OrderDetailBO detailBO : details){
+            Long goodsId = Long.parseLong(detailBO.getGoodsId());
+            goodIds.add(goodsId);
+            map.put(goodsId,new BigDecimal(detailBO.getPrice()).multiply(new BigDecimal(detailBO.getNumber())));
+        }
+        List<GoodsBO> goodsList = goodsService.queryGoodsByGoodsId(goodIds);
+        if(CollectionUtils.isEmpty(goodsList)){
+            throw new BizRuntimeException(ResultCode.GOODS_DOWN,"goods are down,please refresh");
+        }
+        BigDecimal noNeedRandomPrice = new BigDecimal("0");
+        BigDecimal needRandomPrice = new BigDecimal("0");
+        for(GoodsBO goodsBO : goodsList){
+            Long id = goodsBO.getId();
+            BigDecimal inner = map.get(id);
+            if(0 == goodsBO.getIsRandomDiscount()){
+                //需要参加随机折扣
+                needRandomPrice = needRandomPrice.add(inner);
+            } else {
+                noNeedRandomPrice = noNeedRandomPrice.add(inner);
+            }
+        }
+        DiscountVO discountVO = UserHelper.randomDiscount(list,needRandomPrice.doubleValue());
+        double realSettlePrice = new BigDecimal(discountVO.getSettlePrice()).add(noNeedRandomPrice).doubleValue();
+        boolean flag = this.withhold(phone,realSettlePrice);
+		if(!flag){
+			throw new BizRuntimeException(ResultCode.ERROR,"balance withhold failed");
+		}
         OrderVO orderVO = new OrderVO();
-        orderVO.setGoodsSettlePrice(discountVO.getSettlePrice());
+        orderVO.setGoodsSettlePrice(realSettlePrice);
         orderVO.setGoodsTotalPrice(balanceVO.getTotalPrice());
         orderVO.setRackUUID(balanceVO.getRackUuid());
         orderVO.setBenefitPrice(balanceVO.getBenefitPrice());
@@ -116,12 +155,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean withhold(BalanceVO balanceVO){
-        if(null == balanceVO){
-            throw new BizRuntimeException(ResultCode.ERROR,"balanceVO is null while withholding");
-        }
-        Double price = balanceVO.getSettlePrice();
-        String phone = balanceVO.getPhone();
+    public boolean withhold(String phone, Double price){
         if(null == price){
             throw new BizRuntimeException(ResultCode.ERROR,"price can't be null while withholding");
         }
@@ -155,6 +189,14 @@ public class UserServiceImpl implements UserService{
         if(null == userBO){
             throw new BizRuntimeException(ResultCode.ERROR,"userBo is null while add user");
         }
+        String openid = userBO.getOpenid();
+        String alipayId = userBO.getAlipayId();
+        if(StringUtils.isBlank(openid) && StringUtils.isBlank(alipayId)){
+            throw new BizRuntimeException(ResultCode.ERROR,"openid and alipayId both are null while register");
+        }
+        if(StringUtils.isNotBlank(openid) && StringUtils.isNotBlank(alipayId)){
+            throw new BizRuntimeException(ResultCode.ERROR,"openid and alipayId both are not null while register");
+        }
         String code = userBO.getCheckCode();
         if(StringUtils.isBlank(code)){
             throw new BizRuntimeException(ResultCode.WRONG_CHECK_CODE,"checkcode is blank while register");
@@ -173,13 +215,32 @@ public class UserServiceImpl implements UserService{
             throw new BizRuntimeException(ResultCode.WRONG_CHECK_CODE,"check code is not correct,param code is "+code+" while cacheCode is "+cacheCode);
         }
         UserBO exists = this.queryUserInfoByPhone(phone);
-        //todo 暂时不知道微信openid和Alipayid会不会重复
         if(null != exists){
-            if(exists.getOpenid().equalsIgnoreCase(userBO.getOpenid())){
-                return exists;
-            } else {
-                //说明该手机号已注册
-                throw new BizRuntimeException(ResultCode.PHONE_ALREADY_REGISTERED,"phone already registered");
+            if(StringUtils.isNotBlank(openid)){
+                if(StringUtils.isBlank(exists.getOpenid())){
+                    userDAO.updateWeixin(phone,openid);
+                    userBO.setOpenid(openid);
+                    return userBO;
+                }
+                if(openid.equalsIgnoreCase(exists.getOpenid())){
+                    return exists;
+                } else{
+                    //说明该手机号已注册
+                    throw new BizRuntimeException(ResultCode.PHONE_ALREADY_REGISTERED,"phone already registered");
+                }
+            }
+            if(StringUtils.isNotBlank(alipayId)){
+                if(StringUtils.isBlank(exists.getAlipayId())){
+                    userDAO.updateAlipay(phone,alipayId);
+                    userBO.setAlipayId(alipayId);
+                    return userBO;
+                }
+                if(alipayId.equalsIgnoreCase(exists.getAlipayId())){
+                    return exists;
+                } else{
+                    //说明该手机号已注册
+                    throw new BizRuntimeException(ResultCode.PHONE_ALREADY_REGISTERED,"phone already registered");
+                }
             }
         }
         userDAO.addUser(UserHelper.doFromBo(userBO));
@@ -194,10 +255,15 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public boolean recordChargeSucceed(String recordId){
+    public boolean recordChargeSucceed(String recordId,int type){
         ChargeSucceedRecord record = new ChargeSucceedRecord();
-        record.setWeixinOrderId(recordId);
-        return chargeRecordInfoDAO.insertChargeSucceedRecord4Weixin(record) > 0;
+        if(0==type){
+            record.setAlipayOrderId(recordId);
+            return chargeRecordInfoDAO.insertChargeSucceedRecord4Alipay(record) > 0;
+        } else {
+            record.setWeixinOrderId(recordId);
+            return chargeRecordInfoDAO.insertChargeSucceedRecord4Weixin(record) > 0;
+        }
     }
 
     @Override
@@ -206,11 +272,16 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public String sendCheckCode(String phone,String openid) {
+    public Integer queryIfRecordAlipayOrderId(String alipay) {
+        return chargeRecordInfoDAO.queryIfRecordAlipayOrderId(alipay);
+    }
+
+    @Override
+    public String sendCheckCode(String phone,String openid,String alipayId) {
         if(StringUtils.isBlank(phone)){
             throw new BizRuntimeException(ResultCode.BLANK_MOBILE,"phone is blank while register");
         }
-        String cache = redisValueOperations.get(phone+openid);
+        String cache = redisValueOperations.get(phone+openid+alipayId);
         if(StringUtils.isNotBlank(cache)){
             throw new BizRuntimeException(ResultCode.SEND_CODE_TOO_FREQUENTLY,"phone is request checkcode too frequently");
         }
@@ -228,7 +299,7 @@ public class UserServiceImpl implements UserService{
             jsonCache.put("checkcode",code);
             redisValueOperations.set(key,jsonCache,10*60);
             //防止前端不拦住60s获取验证码
-            redisValueOperations.set(phone+openid,phone,60);
+            redisValueOperations.set(phone+openid+alipayId,phone,60);
             return code;
         } catch (Exception e) {
             throw new BizRuntimeException(ResultCode.SEND_CODE_ERROR_HAPPEN,"error occured while send checkcode"+e);

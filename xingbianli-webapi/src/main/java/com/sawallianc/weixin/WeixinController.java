@@ -1,6 +1,7 @@
 package com.sawallianc.weixin;
 
 import com.sawallianc.entity.Result;
+import com.sawallianc.springboot.advice.WebApiAdvice;
 import com.sawallianc.weixin.bo.WeixinUnionOrderBO;
 import com.sawallianc.weixin.util.WeixinUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/weixin")
-public class WeixinController {
+public class WeixinController extends WebApiAdvice {
     @Autowired
     private WeixinService weixinService;
 

@@ -17,7 +17,7 @@ public interface GoodsDAO {
      * @param list
      * @return
      */
-    List<GoodsDO> queryGoodsByGoodsId(@Param("list") List<Integer> list);
+    List<GoodsDO> queryGoodsByGoodsId(@Param("list") List<Long> list);
 
     /**
      * 扫码得到EAN_13 CODE获取商品

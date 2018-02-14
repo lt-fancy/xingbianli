@@ -5,6 +5,7 @@ import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.goods.bo.GoodsVO;
 import com.sawallianc.goods.service.GoodsService;
+import com.sawallianc.springboot.advice.WebApiAdvice;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/goods")
-public class GoodsController {
+public class GoodsController extends WebApiAdvice {
 
     @Autowired
     private GoodsService goodsService;

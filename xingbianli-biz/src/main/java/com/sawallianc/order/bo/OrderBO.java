@@ -10,6 +10,8 @@ import java.util.List;
 public class OrderBO extends BaseBO{
     private String orderId;
     private String phone;
+    private String openid;
+    private String alipayid;
     private String rackUUID;
     private String goodsTotalPrice;
     private String goodsSettlePrice;
@@ -20,5 +22,6 @@ public class OrderBO extends BaseBO{
     private String weixinOrderId;
     private String alipayOrderId;
     private String isBalancePurchased;
+    private Integer orderNum;
     private List<OrderDetailBO> details;
 }

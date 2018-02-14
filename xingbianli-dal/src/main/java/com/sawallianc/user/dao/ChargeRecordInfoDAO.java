@@ -19,5 +19,9 @@ public interface ChargeRecordInfoDAO {
      */
     int insertChargeSucceedRecord4Weixin(ChargeSucceedRecord chargeSucceedRecord);
 
+    int insertChargeSucceedRecord4Alipay(ChargeSucceedRecord chargeSucceedRecord);
+
     Integer queryIfRecordWeixinOrderId(@Param("weixin") String weixin);
+
+    Integer queryIfRecordAlipayOrderId(@Param("alipay") String alipay);
 }

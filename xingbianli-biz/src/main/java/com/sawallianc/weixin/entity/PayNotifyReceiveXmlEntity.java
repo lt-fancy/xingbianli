@@ -30,4 +30,24 @@ public class PayNotifyReceiveXmlEntity {
     private String out_trade_no;
     private String time_end;
     private String attach;
+
+    private String coupon_type_0;
+    private String coupon_id_0;
+    private String coupon_fee_0;
+
+    private String coupon_type_1;
+    private String coupon_id_1;
+    private String coupon_fee_1;
+
+    private String coupon_type_2;
+    private String coupon_id_2;
+    private String coupon_fee_2;
+
+    private String coupon_type_3;
+    private String coupon_id_3;
+    private String coupon_fee_3;
+
+    private String coupon_type_4;
+    private String coupon_id_4;
+    private String coupon_fee_4;
 }

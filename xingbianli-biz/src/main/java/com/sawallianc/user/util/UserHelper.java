@@ -59,6 +59,7 @@ public class UserHelper {
             return null;
         }
         double random = Math.random();
+//        random = 0.41;
         System.out.println("随机小数："+random);
         Map<Double,Double> map = Maps.newHashMapWithExpectedSize(list.size());
         List<Double> chances = Lists.newArrayListWithCapacity(list.size());
@@ -85,18 +86,11 @@ public class UserHelper {
         }
         Collections.sort(chances);
         DiscountVO vo = new DiscountVO();
-        for(int i =0;i<chances.size()-1;i++){
+        for(int i =0;i<chances.size();i++){
             double left = chances.get(i);
-            double right = chances.get(i + 1);
             if(random <= left){
                 vo.setChance(map.get(left));
                 vo.setSettlePrice(keep2Decimal(price * map.get(left)));
-                vo.setDiscount(keep2Decimal(price-vo.getSettlePrice()));
-                return vo;
-            }
-            if(random > left && random <= right){
-                vo.setChance(map.get(right));
-                vo.setSettlePrice(keep2Decimal(price * map.get(right)));
                 vo.setDiscount(keep2Decimal(price-vo.getSettlePrice()));
                 return vo;
             }

@@ -5,6 +5,8 @@ import lombok.Data;
 @Data
 public class OrderVO {
     private String phone;
+    private String openid;
+    private String alipayid;
     private String rackUUID;
     private Double goodsTotalPrice;
     private Double goodsSettlePrice;

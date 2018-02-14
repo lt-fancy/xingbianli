@@ -35,6 +35,8 @@ public final class OrderHelper {
         orderDO.setGoodsTotalPrice(orderVO.getGoodsTotalPrice());
         orderDO.setRackUUID(orderVO.getRackUUID());
         orderDO.setPhone(orderVO.getPhone());
+        orderDO.setOpenid(orderVO.getOpenid());
+        orderDO.setAlipayid(orderVO.getAlipayid());
         if(null != orderVO.getRandomBenefitPrice()){
             orderDO.setRandomBenefitPrice(orderVO.getRandomBenefitPrice());
         } else {
@@ -53,6 +55,8 @@ public final class OrderHelper {
         detail.setNumber(Integer.parseInt(bo.getNumber()));
         detail.setPrice(Double.parseDouble(bo.getPrice()));
         detail.setPhone(orderDO.getPhone());
+        detail.setOpenid(orderDO.getOpenid());
+        detail.setAlipayid(orderDO.getAlipayid());
         detail.setRackUuid(orderDO.getRackUUID());
         return detail;
     }
@@ -66,6 +70,8 @@ public final class OrderHelper {
         bo.setNumber(orderDetailDO.getNumber()+"");
         bo.setOrderId(orderDetailDO.getOrderId()+"");
         bo.setPhone(orderDetailDO.getPhone());
+        bo.setOpenid(orderDetailDO.getOpenid());
+        bo.setAlipayid(orderDetailDO.getAlipayid());
         bo.setPrice(orderDetailDO.getPrice()+"");
         bo.setRackUuid(orderDetailDO.getRackUuid());
         bo.setGoodsName(orderDetailDO.getGoodsName());
@@ -116,6 +122,8 @@ public final class OrderHelper {
             bo.setIsBalancePurchased("0");
         }
         bo.setPhone(orderDO.getPhone());
+        bo.setOpenid(orderDO.getOpenid());
+        bo.setAlipayid(orderDO.getAlipayid());
         bo.setRackUUID(orderDO.getRackUUID());
         bo.setOrderId(orderDO.getOrderId());
         bo.setGmtCreated(DateUtil.date2Str(orderDO.getGmtCreated()));

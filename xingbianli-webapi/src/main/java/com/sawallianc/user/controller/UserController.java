@@ -75,8 +75,8 @@ public class UserController extends WebApiAdvice {
     }
 
     @GetMapping(value = "/sendCode")
-    public Result sendCode(String phone,String openid){
-        return Result.getSuccessResult(userService.sendCheckCode(phone,openid));
+    public Result sendCode(String phone,String openid,String alipayId){
+        return Result.getSuccessResult(userService.sendCheckCode(phone,openid,alipayId));
     }
 
     @GetMapping(value = "/batchSend")

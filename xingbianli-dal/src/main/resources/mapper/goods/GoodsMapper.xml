@@ -15,6 +15,7 @@
         <result property="goodsNumber" column="goods_number"/>
         <result property="goodsTag" column="goods_tag"/>
         <result property="goodsEanCode" column="goods_ean_code"/>
+        <result property="isRandomDiscount" column="is_random_discount"/>
         <result property="isLimited" column="is_limited"/>
         <result property="isDeleted" column="is_deleted"/>
         <result property="gmtCreated" column="gmt_created"/>
@@ -26,7 +27,8 @@
     </sql>
 
     <sql id="goodsSql">
-        id, goods_name, goods_uri, goods_old_price,goods_ean_code, goods_now_price, goods_discount, goods_category, is_special_price, is_limited, is_deleted, gmt_created, gmt_modified, goods_tag
+        id, goods_name, goods_uri, goods_old_price,goods_ean_code, goods_now_price, goods_discount, goods_category,
+        is_special_price, is_limited, is_deleted, gmt_created, gmt_modified, goods_tag,is_random_discount
     </sql>
 
     <select id="findGoodsByRackUUId" resultMap="baseMap">

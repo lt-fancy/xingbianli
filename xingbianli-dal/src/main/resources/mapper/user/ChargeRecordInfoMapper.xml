@@ -28,8 +28,20 @@
         (#{weixinOrderId},now())
     </insert>
 
+    <insert id="insertChargeSucceedRecord4Alipay" parameterType="com.sawallianc.user.module.ChargeSucceedRecord">
+        insert into charge_succeed_record(alipay_order_id,happen_time)
+        VALUES
+        (#{alipayOrderId},now())
+    </insert>
+
     <select id="queryIfRecordWeixinOrderId" resultType="java.lang.Integer">
         select 1 from charge_succeed_record
         where weixin_order_id=#{weixin}
     </select>
+
+    <select id="queryIfRecordAlipayOrderId" resultType="java.lang.Integer">
+        select 1 from charge_succeed_record
+        where alipay_order_id=#{alipay}
+    </select>
+
 </mapper>

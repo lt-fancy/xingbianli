@@ -7,6 +7,8 @@ import com.sawallianc.common.Constant;
 import com.sawallianc.common.OrderIdUtil;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
+import com.sawallianc.order.bo.OrderBO;
+import com.sawallianc.order.bo.OrderVO;
 import com.sawallianc.order.service.OrderService;
 import com.sawallianc.redis.operations.RedisValueOperations;
 import com.sawallianc.state.bo.StateBO;
@@ -28,6 +30,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -135,6 +138,7 @@ public class WeixinServiceImpl implements WeixinService {
     public WeixinPayVO getWeixinPayConfig(WeixinUnionOrderBO bo) {
         String orderId = OrderIdUtil.getOrderId();
         bo.setOut_trade_no(orderId);
+        bo.setOrderId(orderId);
         bo.setSpbill_create_ip(bo.getSpbill_create_ip());
         bo.setAppid(WexinConstant.APP_ID);
         boolean needMakeOrder = true;
@@ -171,6 +175,8 @@ public class WeixinServiceImpl implements WeixinService {
         if(!needMakeOrder){
             return vo;
         }
+        OrderBO orderBO = orderService.makeOrder(bo,0);
+        BeanUtils.copyProperties(orderBO,vo);
         LOGGER.info("============vo:"+vo);
         return vo;
     }
@@ -202,7 +208,7 @@ public class WeixinServiceImpl implements WeixinService {
         if(null != result && result.intValue() == 1){
             return WeixinUtil.return2Weixin(SUCCESS,"OK");
         }
-        orderService.updateOrderState2Succeed(entity.getOut_trade_no(),entity.getTransaction_id());
+        orderService.updateOrderState2SucceedWeixin(entity.getOut_trade_no(),entity.getTransaction_id(),entity.getAttach());
         return WeixinUtil.return2Weixin(SUCCESS,"OK");
     }
 
@@ -236,7 +242,7 @@ public class WeixinServiceImpl implements WeixinService {
             return WeixinUtil.return2Weixin(SUCCESS,"OK");
         }
         BalanceVO vo = new BalanceVO();
-        int chargeAmount = 200;
+        int chargeAmount = Integer.parseInt(entity.getTotal_fee()) / 100;
         vo.setChargeAmount(chargeAmount);
         UserBO user = userService.queryUserInfoByOpenid(entity.getOpenid());
         if(null == user){
@@ -260,7 +266,7 @@ public class WeixinServiceImpl implements WeixinService {
         }
         vo.setChargeMethod(1);
         vo.setChargeMethodName(Constant.ChargeMethod.getNameByCode(vo.getChargeMethod()));
-        userService.recordChargeSucceed(weixinOrderId);
+        userService.recordChargeSucceed(weixinOrderId,1);
         if(!userService.charge(vo)){
             throw new BizRuntimeException(ResultCode.ERROR,"充值失败");
         }

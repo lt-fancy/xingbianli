@@ -39,6 +39,22 @@ public interface UserDAO {
     int addUser(UserDO userDO);
 
     /**
+     * 更新微信openid
+     * @param phone
+     * @param openid
+     * @return
+     */
+    int updateWeixin(@Param("phone") String phone,@Param("openid")String openid);
+
+    /**
+     * 更新支付宝id
+     * @param phone
+     * @param alipayId
+     * @return
+     */
+    int updateAlipay(@Param("phone") String phone,@Param("alipayId")String alipayId);
+
+    /**
      * 获取所有正常的用户
      * @return
      */
