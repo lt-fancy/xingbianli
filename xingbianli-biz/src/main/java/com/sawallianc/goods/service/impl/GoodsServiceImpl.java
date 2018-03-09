@@ -102,11 +102,11 @@ public class GoodsServiceImpl implements GoodsService{
     }
 
     @Override
-    public List<ToPayGoodsBO> queryGoodsByGoodsId(String goodsIds) {
-        if(StringUtils.isBlank(goodsIds)){
-            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"goodsIds must not be blank while query goods info");
+    public List<ToPayGoodsBO> queryGoodsByGoodsId(Map<String,Object> inmap) {
+        if(null == inmap || inmap.isEmpty()){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"map must not be blank while query goods info");
         }
-        JSONArray array = JSONArray.parseArray(goodsIds);
+        JSONArray array = JSONArray.parseArray((String) inmap.get("goodsIds"));
         Map<Long,Integer> map = Maps.newHashMapWithExpectedSize(array.size());
         for(int i=0;i<array.size();i++){
             JSONObject object = array.getJSONObject(i);
@@ -123,6 +123,9 @@ public class GoodsServiceImpl implements GoodsService{
             bo.setGoodsName(goodsBO.getGoodsName());
             bo.setId(goodsBO.getId());
             bo.setNumber(map.get(bo.getId()));
+            bo.setGoodsNowPrice(goodsBO.getGoodsNowPrice());
+            bo.setGoodsOldPrice(goodsBO.getGoodsOldPrice());
+            bo.setGoodsUri(goodsBO.getGoodsUri());
             bo.setPrice(Double.parseDouble(goodsBO.getGoodsNowPrice()));
             result.add(bo);
         }

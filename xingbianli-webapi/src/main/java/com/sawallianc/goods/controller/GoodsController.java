@@ -9,12 +9,10 @@ import com.sawallianc.springboot.advice.WebApiAdvice;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/goods")
@@ -40,12 +38,12 @@ public class GoodsController extends WebApiAdvice {
         return Result.getSuccessResult(goodsService.queryGoodsByGoodsName(uuid,goodsName));
     }
 
-    @GetMapping(value = "/queryGoodsByGoodsId")
-    public Result queryGoodsByGoodsId(String goodsIds){
-        if(StringUtils.isBlank(goodsIds)){
-            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"goodsIds must not be blank while query goods info");
+    @PostMapping(value = "/queryGoodsByGoodsId")
+    public Result queryGoodsByGoodsId(@RequestBody Map<String,Object> map){
+        if(null == map || map.isEmpty()){
+            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"map must not be blank while query goods info");
         }
-        return Result.getSuccessResult(goodsService.queryGoodsByGoodsId(goodsIds));
+        return Result.getSuccessResult(goodsService.queryGoodsByGoodsId(map));
     }
 
     @GetMapping(value = "/queryGoodsByEanCode")

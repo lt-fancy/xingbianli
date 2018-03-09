@@ -5,6 +5,7 @@ import com.sawallianc.goods.bo.GoodsVO;
 import com.sawallianc.goods.bo.ToPayGoodsBO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface GoodsService {
     /**
@@ -25,10 +26,10 @@ public interface GoodsService {
     /**
      * 去待支付页面需要重新请求接口，不能从首页直接带值过来
      * 前端会传递客户购物车里面的goodsId集合，用英文逗号分隔
-     * @param goodsIds
+     * @param map
      * @return
      */
-    List<ToPayGoodsBO> queryGoodsByGoodsId(String goodsIds);
+    List<ToPayGoodsBO> queryGoodsByGoodsId(Map<String,Object> map);
 
     /**
      * 去待支付页面需要重新请求接口，不能从首页直接带值过来
