@@ -1,12 +1,16 @@
 package com.sawallianc.goods.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.sawallianc.common.CacheUtil;
 import com.sawallianc.common.Constant;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.goods.bo.GoodsBO;
 import com.sawallianc.goods.bo.GoodsVO;
+import com.sawallianc.goods.bo.ToPayGoodsBO;
 import com.sawallianc.goods.dao.GoodsDAO;
 import com.sawallianc.goods.service.GoodsService;
 import com.sawallianc.goods.util.GoodsHelper;
@@ -19,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class GoodsServiceImpl implements GoodsService{
@@ -97,19 +102,31 @@ public class GoodsServiceImpl implements GoodsService{
     }
 
     @Override
-    public List<GoodsBO> queryGoodsByGoodsId(String goodsIds) {
+    public List<ToPayGoodsBO> queryGoodsByGoodsId(String goodsIds) {
         if(StringUtils.isBlank(goodsIds)){
             throw new BizRuntimeException(ResultCode.PARAM_ERROR,"goodsIds must not be blank while query goods info");
         }
-        String[] idArray = goodsIds.split(",");
-        if(null == idArray || idArray.length == 0){
-            throw new BizRuntimeException(ResultCode.PARAM_ERROR,"goodsIds:"+goodsIds+" does not have a correct format,must have a ','");
+        JSONArray array = JSONArray.parseArray(goodsIds);
+        Map<Long,Integer> map = Maps.newHashMapWithExpectedSize(array.size());
+        for(int i=0;i<array.size();i++){
+            JSONObject object = array.getJSONObject(i);
+            map.put(object.getLong("goodsId"),object.getInteger("count"));
         }
-        List<Long> idList = Lists.newArrayListWithCapacity(idArray.length);
-        for(String id : idArray){
-            idList.add(Long.parseLong(id));
+        List<Long> idList = Lists.newArrayListWithCapacity(map.size());
+        for(Long id : map.keySet()){
+            idList.add(id);
         }
-        return goodsHelper.bosFromDos(goodsDAO.queryGoodsByGoodsId(idList));
+        List<GoodsBO> list = goodsHelper.bosFromDos(goodsDAO.queryGoodsByGoodsId(idList));
+        List<ToPayGoodsBO> result = Lists.newArrayListWithCapacity(list.size());
+        for(GoodsBO goodsBO : list){
+            ToPayGoodsBO bo = new ToPayGoodsBO();
+            bo.setGoodsName(goodsBO.getGoodsName());
+            bo.setId(goodsBO.getId());
+            bo.setNumber(map.get(bo.getId()));
+            bo.setPrice(Double.parseDouble(goodsBO.getGoodsNowPrice()));
+            result.add(bo);
+        }
+        return result;
     }
 
     @Override

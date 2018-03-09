@@ -2,6 +2,7 @@ package com.sawallianc.goods.service;
 
 import com.sawallianc.goods.bo.GoodsBO;
 import com.sawallianc.goods.bo.GoodsVO;
+import com.sawallianc.goods.bo.ToPayGoodsBO;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public interface GoodsService {
      * @param goodsIds
      * @return
      */
-    List<GoodsBO> queryGoodsByGoodsId(String goodsIds);
+    List<ToPayGoodsBO> queryGoodsByGoodsId(String goodsIds);
 
     /**
      * 去待支付页面需要重新请求接口，不能从首页直接带值过来
