@@ -15,11 +15,13 @@ import com.sawallianc.order.module.OrderDO;
 import com.sawallianc.order.module.OrderDetailDO;
 import com.sawallianc.order.service.OrderService;
 import com.sawallianc.order.util.OrderHelper;
+import com.sawallianc.order.vo.OrderDetailVO;
 import com.sawallianc.redis.operations.RedisValueOperations;
 import com.sawallianc.user.bo.UserBO;
 import com.sawallianc.user.service.UserService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -232,5 +234,14 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public List<OrderDetailDO> queryOrderDetailByOrderId(String orderId) {
         return orderDAO.queryOrderDetailInfoByOrderId(orderId);
+    }
+
+    @Override
+    public OrderDetailVO queryOrderDetailWithOrderId(String orderId) {
+        List<OrderDetailDO> list = orderDAO.queryOrderDetailWithOrderId(orderId);
+        OrderDetailVO vo = new OrderDetailVO();
+        vo.setDetails(list);
+        BeanUtils.copyProperties(list.get(0),vo);
+        return vo;
     }
 }

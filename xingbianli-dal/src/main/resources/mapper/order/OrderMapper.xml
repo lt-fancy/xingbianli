@@ -33,6 +33,10 @@
         <result property="openid" column="openid"/>
         <result property="alipayid" column="alipayid"/>
         <result property="rackUuid" column="rack_uuid"/>
+        <result property="goodsTotalPrice" column="goods_total_price"/>
+        <result property="goodsSettlePrice" column="goods_settle_price"/>
+        <result property="randomBenefitPrice" column="random_benefit_price"/>
+        <result property="benefitPrice" column="benefit_price"/>
     </resultMap>
 
     <sql id="baseSql">
@@ -147,4 +151,32 @@
     <insert id="insertAlipayNotify">
         insert into alipay_notify_info(alipay_notify_id,gmt_created) values(#{notifyId},now())
     </insert>
+
+    <select id="queryOrderDetailWithOrderId" resultMap="detailMap">
+        SELECT
+            a.id,
+            a.openid,
+            a.alipayid,
+            a.order_id,
+            a.goods_id,
+            a.goods_number,
+            a.price,
+            a.phone,
+            a.rack_uuid,
+            b.goods_name,
+        c.goods_total_price,
+            c.goods_settle_price,
+            c.random_benefit_price,
+            c.benefit_price
+        FROM
+            order_details a,
+            goods_info b,
+        order_info c
+        WHERE
+            c.order_id = #{orderId}
+        AND a.goods_id = b.id
+        and a.order_id=c.id
+        ORDER BY
+            a.price DESC
+    </select>
 </mapper>

@@ -2,8 +2,8 @@ package com.sawallianc.order.service;
 
 import com.sawallianc.order.bo.OrderBO;
 import com.sawallianc.order.bo.OrderVO;
-import com.sawallianc.order.module.OrderDO;
 import com.sawallianc.order.module.OrderDetailDO;
+import com.sawallianc.order.vo.OrderDetailVO;
 
 import java.util.List;
 
@@ -31,4 +31,6 @@ public interface OrderService {
     int insertAlipayNotify(String notifyId);
 
     List<OrderDetailDO> queryOrderDetailByOrderId(String orderId);
+
+    OrderDetailVO queryOrderDetailWithOrderId(String orderId);
 }

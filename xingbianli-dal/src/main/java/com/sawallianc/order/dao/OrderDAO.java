@@ -38,4 +38,6 @@ public interface OrderDAO {
     int updateOrderState2SucceedWeixin(@Param("orderId") String orderId,@Param("weixinOrderId") String weixinOrderId);
 
     int updateOrderState2SucceedAlipay(@Param("orderId") String orderId,@Param("alipayOrderId") String alipayOrderId);
+
+    List<OrderDetailDO> queryOrderDetailWithOrderId(@Param("orderId")String orderId);
 }

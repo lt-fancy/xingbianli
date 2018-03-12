@@ -14,4 +14,8 @@ public class OrderDetailDO {
     private String openid;
     private String alipayid;
     private String rackUuid;
+    private String goodsTotalPrice;
+    private String benefitPrice;
+    private String randomBenefitPrice;
+    private String goodsSettlePrice;
 }
