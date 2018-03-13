@@ -299,7 +299,7 @@ public class UserServiceImpl implements UserService{
             jsonCache.put("checkcode",code);
             redisValueOperations.set(key,jsonCache,10*60);
             //防止前端不拦住60s获取验证码
-            redisValueOperations.set(phone+openid+alipayId,phone,60);
+            redisValueOperations.set(phone+openid+alipayId,"request checkcode too frequently",60);
             return code;
         } catch (Exception e) {
             throw new BizRuntimeException(ResultCode.SEND_CODE_ERROR_HAPPEN,"error occured while send checkcode"+e);
