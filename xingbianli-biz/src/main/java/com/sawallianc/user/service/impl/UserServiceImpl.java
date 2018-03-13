@@ -281,8 +281,8 @@ public class UserServiceImpl implements UserService{
         if(StringUtils.isBlank(phone)){
             throw new BizRuntimeException(ResultCode.BLANK_MOBILE,"phone is blank while register");
         }
-        String cache = redisValueOperations.get(phone+openid+alipayId);
-        if(StringUtils.isNotBlank(cache)){
+        String checkFrequentlySendKey = phone+openid+alipayId;
+        if(redisValueOperations.exists(checkFrequentlySendKey)){
             throw new BizRuntimeException(ResultCode.SEND_CODE_TOO_FREQUENTLY,"phone is request checkcode too frequently");
         }
         Random random = new Random();
@@ -299,7 +299,7 @@ public class UserServiceImpl implements UserService{
             jsonCache.put("checkcode",code);
             redisValueOperations.set(key,jsonCache,10*60);
             //防止前端不拦住60s获取验证码
-            redisValueOperations.set(phone+openid+alipayId,"request checkcode too frequently",60);
+            redisValueOperations.set(checkFrequentlySendKey,phone+"sa",60);
             return code;
         } catch (Exception e) {
             throw new BizRuntimeException(ResultCode.SEND_CODE_ERROR_HAPPEN,"error occured while send checkcode"+e);
