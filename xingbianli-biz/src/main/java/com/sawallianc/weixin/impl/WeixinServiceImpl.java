@@ -1,6 +1,5 @@
 package com.sawallianc.weixin.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.sawallianc.common.Constant;
@@ -8,7 +7,6 @@ import com.sawallianc.common.OrderIdUtil;
 import com.sawallianc.entity.ResultCode;
 import com.sawallianc.entity.exception.BizRuntimeException;
 import com.sawallianc.order.bo.OrderBO;
-import com.sawallianc.order.bo.OrderVO;
 import com.sawallianc.order.service.OrderService;
 import com.sawallianc.redis.operations.RedisValueOperations;
 import com.sawallianc.state.bo.StateBO;
