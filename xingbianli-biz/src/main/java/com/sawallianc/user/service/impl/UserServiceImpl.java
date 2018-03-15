@@ -28,8 +28,10 @@ import com.sawallianc.state.service.StateService;
 import com.sawallianc.user.bo.UserBO;
 import com.sawallianc.user.dao.ChargeRecordInfoDAO;
 import com.sawallianc.user.dao.UserDAO;
+import com.sawallianc.user.dao.WithholdRecordInfoDAO;
 import com.sawallianc.user.module.ChargeRecordInfo;
 import com.sawallianc.user.module.ChargeSucceedRecord;
+import com.sawallianc.user.module.WithholdRecordInfo;
 import com.sawallianc.user.service.UserService;
 import com.sawallianc.user.util.UserHelper;
 import com.sawallianc.user.vo.BalanceVO;
@@ -56,6 +58,9 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private ChargeRecordInfoDAO chargeRecordInfoDAO;
+
+    @Autowired
+    private WithholdRecordInfoDAO withholdRecordInfoDAO;
 
     @Autowired
     private OrderService orderService;
@@ -274,6 +279,11 @@ public class UserServiceImpl implements UserService{
     @Override
     public Integer queryIfRecordAlipayOrderId(String alipay) {
         return chargeRecordInfoDAO.queryIfRecordAlipayOrderId(alipay);
+    }
+
+    @Override
+    public void insertWithholdRecord(WithholdRecordInfo withholdRecordInfo) {
+        withholdRecordInfoDAO.insertWithholdRecordInfo(withholdRecordInfo);
     }
 
     @Override

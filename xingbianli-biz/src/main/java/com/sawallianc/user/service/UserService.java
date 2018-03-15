@@ -3,6 +3,7 @@ package com.sawallianc.user.service;
 import com.sawallianc.order.bo.OrderBO;
 import com.sawallianc.user.bo.UserBO;
 import com.sawallianc.user.module.ChargeRecordInfo;
+import com.sawallianc.user.module.WithholdRecordInfo;
 import com.sawallianc.user.vo.BalanceVO;
 
 import java.util.List;
@@ -84,4 +85,6 @@ public interface UserService {
     Integer queryIfRecordWeixinOrderId(String weixin);
 
     Integer queryIfRecordAlipayOrderId(String alipay);
+
+    void insertWithholdRecord(WithholdRecordInfo withholdRecordInfo);
 }

@@ -18,6 +18,7 @@ import com.sawallianc.order.util.OrderHelper;
 import com.sawallianc.order.vo.OrderDetailVO;
 import com.sawallianc.redis.operations.RedisValueOperations;
 import com.sawallianc.user.bo.UserBO;
+import com.sawallianc.user.module.WithholdRecordInfo;
 import com.sawallianc.user.service.UserService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,6 +64,13 @@ public class OrderServiceImpl implements OrderService{
         orderDO.setGmtCreated(now);
         if(1 == orderState){
             orderDO.setGmtModified(now);
+            WithholdRecordInfo withholdRecordInfo = new WithholdRecordInfo();
+            withholdRecordInfo.setPhone(orderDO.getPhone());
+            withholdRecordInfo.setBeforeBalance(orderDO.getPhone());
+            withholdRecordInfo.setAfterBalance(orderDO.getPhone());
+            withholdRecordInfo.setOrderId(orderDO.getOrderId());
+            withholdRecordInfo.setPayTime(now);
+            userService.insertWithholdRecord(withholdRecordInfo);
         }
         orderDAO.makeOrder(orderDO);
         List<OrderDetailBO> details = JSONArray.parseArray(json, OrderDetailBO.class);

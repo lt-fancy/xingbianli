@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sawallianc.user.dao.WithholdRecordInfoDAO">
+    <resultMap id="baseMap" type="com.sawallianc.user.module.WithholdRecordInfo">
+        <id column="id" property="id"/>
+        <result property="phone" column="phone"/>
+        <result property="beforeBalance" column="before_balance"/>
+        <result property="afterBalance" column="after_balance"/>
+        <result property="orderId" column="order_id"/>
+        <result property="payTime" column="pay_time"/>
+    </resultMap>
+
+    <insert id="insertWithholdRecordInfo" parameterType="com.sawallianc.user.module.WithholdRecordInfo">
+        insert into balance_record_info (phone,before_balance,after_balance,order_id,pay_time)
+        VALUES
+        (#{phone},#{beforeBalance},#{afterBalance},#{orderId},#{payTime})
+    </insert>
+
+</mapper>
