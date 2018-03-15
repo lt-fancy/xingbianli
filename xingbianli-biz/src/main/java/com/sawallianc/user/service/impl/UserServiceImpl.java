@@ -39,9 +39,11 @@ import com.sawallianc.weixin.cons.WexinConstant;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +79,9 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private RedisValueOperations redisValueOperations;
 
+    @Resource
+    private RedisTemplate redisTemplate;
+
     @Override
     @ChargeLogAnnotation
     @Transactional(rollbackFor = Exception.class)
@@ -104,10 +109,11 @@ public class UserServiceImpl implements UserService{
         Double price = balanceVO.getSettlePrice();
         String phone = balanceVO.getPhone();
         UserBO user = this.queryUserInfoByPhone(phone);
+        String beforeBalance = user.getBalance();
         if(null == user){
             throw new BizRuntimeException(ResultCode.NOT_REGISTERED,"用户不存在");
         }
-        if(price > Double.parseDouble(user.getBalance())){
+        if(price > Double.parseDouble(beforeBalance)){
             throw new BizRuntimeException(ResultCode.USER_BALANCE_NOT_ENOUGH,"用户余额不足");
         }
         if(null == price || price < 0){
@@ -147,6 +153,8 @@ public class UserServiceImpl implements UserService{
 		if(!flag){
 			throw new BizRuntimeException(ResultCode.ERROR,"balance withhold failed");
 		}
+        redisTemplate.opsForValue().set("beforeBalance",beforeBalance);
+        redisTemplate.opsForValue().set("afterBalance",new BigDecimal(beforeBalance).subtract(new BigDecimal(realSettlePrice)).doubleValue()+"");
         OrderVO orderVO = new OrderVO();
         orderVO.setGoodsSettlePrice(realSettlePrice);
         orderVO.setGoodsTotalPrice(balanceVO.getTotalPrice());

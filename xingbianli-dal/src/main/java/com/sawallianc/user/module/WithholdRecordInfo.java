@@ -8,8 +8,8 @@ import java.util.Date;
 public class WithholdRecordInfo {
     private Long id;
     private String phone;
-    private Double beforeBalance;
-    private Double afterBalance;
+    private String beforeBalance;
+    private String afterBalance;
     private String orderId;
     private Date payTime;
 }

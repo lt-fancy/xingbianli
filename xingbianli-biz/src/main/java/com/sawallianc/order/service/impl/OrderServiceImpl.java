@@ -24,9 +24,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -44,6 +46,9 @@ public class OrderServiceImpl implements OrderService{
 
     @Autowired
     private RedisValueOperations redisValueOperations;
+
+    @Resource
+    private RedisTemplate redisTemplate;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -66,8 +71,8 @@ public class OrderServiceImpl implements OrderService{
             orderDO.setGmtModified(now);
             WithholdRecordInfo withholdRecordInfo = new WithholdRecordInfo();
             withholdRecordInfo.setPhone(orderDO.getPhone());
-            withholdRecordInfo.setBeforeBalance(orderDO.getPhone());
-            withholdRecordInfo.setAfterBalance(orderDO.getPhone());
+            withholdRecordInfo.setBeforeBalance((String) redisTemplate.opsForValue().get("beforeBalance"));
+            withholdRecordInfo.setAfterBalance((String) redisTemplate.opsForValue().get("afterBalance"));
             withholdRecordInfo.setOrderId(orderDO.getOrderId());
             withholdRecordInfo.setPayTime(now);
             userService.insertWithholdRecord(withholdRecordInfo);
